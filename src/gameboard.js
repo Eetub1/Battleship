@@ -1,10 +1,16 @@
 class Gameboard {
-    constructor() {
-
+    constructor(x) {
+        this.x = x
     }
 
     receiveAttack(x, y) {
 
     }
 
+    placeShip(x, y) {
+
+    }
+
 }
+
+module.exports = Gameboard
