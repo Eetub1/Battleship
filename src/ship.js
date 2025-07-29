@@ -6,9 +6,14 @@ class Ship {
         this.name = name
     } 
 
+    getShipLength() {return this.shipLength}
+
+    getShipName() {return this.name}
+
+    getHitAmount() {return this.hitAmount}
+
     hit() {
-        if (this.hitAmount === this.shipLength) return 
-        this.hitAmount++
+        if (this.hitAmount < this.shipLength) this.hitAmount++
     }
 
     isSunk() {

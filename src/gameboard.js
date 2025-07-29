@@ -7,6 +7,12 @@ class Gameboard {
         this.allShipsSunk = false
     }
 
+    getBoard() {return this.board}
+
+    getBoardSize() {return this.boardSize}
+
+    getIsGameOver() {return this.allShipsSunk}
+
     setGameBoard() {
         for (let i = 0; i < this.boardSize; i++) {
             this.board.push([])
@@ -22,35 +28,32 @@ class Gameboard {
         }
     }
 
-    getBoard() {return this.board}
-
-    receiveAttack(x, y) {
+    receiveAttack() {
 
     }
 
     placeShip(ship, y, x, horizontal=true) {
-        console.log(ship.shipLength)
         if (y >= this.boardSize || x >= this.boardSize || y < 0 || x < 0) return false
         if (horizontal) {
-            if (x + ship.shipLength > this.boardSize) return false
+            if (x + ship.getShipLength() > this.boardSize) return false
             let xCopy = x
-            for (let i = 0; i < ship.shipLength; i++) {
+            for (let i = 0; i < ship.getShipLength(); i++) {
                 if (this.board[y][xCopy] === "S") return false
                 xCopy++
             }
-            for (let i = 0; i < ship.shipLength; i++) {
+            for (let i = 0; i < ship.getShipLength(); i++) {
                 this.board[y][x] = "S"
                 x++
             }
             return true
         }
-        if (y + ship.shipLength > this.boardSize) return false
+        if (y + ship.getShipLength() > this.boardSize) return false
         let yCopy = y
-        for (let i = 0; i < ship.shipLength; i++) {
+        for (let i = 0; i < ship.getShipLength(); i++) {
             if (this.board[yCopy][x] === "S") return false
             yCopy++
         }
-        for (let i = 0; i < ship.shipLength; i++) {
+        for (let i = 0; i < ship.getShipLength(); i++) {
             this.board[y][x] = "S"
             y++
         }

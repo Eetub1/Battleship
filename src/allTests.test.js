@@ -4,7 +4,7 @@ const Gameboard = require("./gameboard.js")
 describe("Testing the ship class", () => {
     const ship = new Ship(5)
     test("Testing ship's attributes", () => {
-        expect(ship.hitAmount).toBe(0)
+        expect(ship.getHitAmount()).toBe(0)
         expect(ship.isSunk()).toBe(false)
     })
 
@@ -20,8 +20,8 @@ describe("Testing the Gameboard class", () => {
     const board = new Gameboard()
     board.setGameBoard()
     test("Testing board's attributes", () => {
-        expect(board.boardSize).toBe(10)
-        expect(board.allShipsSunk).toBe(false)
+        expect(board.getBoardSize()).toBe(10)
+        expect(board.getIsGameOver()).toBe(false)
     })
 
     const ship = new Ship(5)
@@ -41,8 +41,6 @@ describe("Testing the Gameboard class", () => {
             //putting a ship where there is already one
             expect(board.placeShip(ship, 0, 4)).toBe(false)
             expect(board.placeShip(ship, 5, 4, false)).toBe(false)
-
-            board.prettyPrint()
         })
     })
 })
