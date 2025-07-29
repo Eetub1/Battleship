@@ -8,7 +8,7 @@ class Ship {
 
     hit() {
         if (this.hitAmount === this.shipLength) return 
-        hitAmount++
+        this.hitAmount++
     }
 
     isSunk() {

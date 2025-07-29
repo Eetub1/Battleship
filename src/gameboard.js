@@ -30,10 +30,11 @@ class Gameboard {
 
     placeShip(ship, y, x, horizontal=true) {
         //also need to check if there is already a ship present here
-        if (y >= this.boardSize || x >= this.boardSize) return false
+        //go in a loop the same way as you place the shipTokens, checking
+        //if there is a token in the spot where you try to place a ship
+        if (y >= this.boardSize || x >= this.boardSize || y < 0 || x < 0) return false
         if (horizontal) {
             if (x + ship.shipLength > this.boardSize) return false
-            //place ship horizontally
             for (let i = 0; i < ship.shipLength; i++) {
                 this.board[y][x] = "S"
                 x++
@@ -50,17 +51,17 @@ class Gameboard {
 
 }
 
-function main() {
+/*function main() {
     const board = new Gameboard()
     board.setGameBoard()
 
-    const destroyer = new Ship(2)
-    console.log(board.placeShip(destroyer, 9, 0, false));
+    const destroyer = new Ship(5)
+    console.log(board.placeShip(destroyer, 6, 0));
 
     board.prettyPrint()
     //console.log(board.getBoard());
 }
 
-main()
+main()*/
 
 module.exports = Gameboard
