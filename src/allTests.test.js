@@ -30,11 +30,19 @@ describe("Testing the Gameboard class", () => {
             expect(board.placeShip(ship, 10, 10)).toBe(false)
             expect(board.placeShip(ship, -1, -1)).toBe(false)
 
-            expect(board.placeShip(ship, 5, 0)).toBe(true)
+            expect(board.placeShip(ship, 0, 0)).toBe(true)
+            expect(board.placeShip(ship, 5, 5)).toBe(true)
             expect(board.placeShip(ship, 5, 6)).toBe(false)
 
-            expect(board.placeShip(ship, 0, 0, false)).toBe(true)
+            expect(board.placeShip(ship, 1, 0, false)).toBe(true)
+            expect(board.placeShip(ship, 5, 4, false)).toBe(true)
             expect(board.placeShip(ship, 6, 0, false)).toBe(false)
+
+            //putting a ship where there is already one
+            expect(board.placeShip(ship, 0, 4)).toBe(false)
+            expect(board.placeShip(ship, 5, 4, false)).toBe(false)
+
+            board.prettyPrint()
         })
     })
 })
