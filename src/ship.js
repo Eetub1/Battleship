@@ -1,8 +1,9 @@
 class Ship {
-    constructor(shipLength, hitAmount, isSunk=false) {
+    constructor(shipLength, hitAmount=0, isShipSunk=false, name="") {
         this.shipLength = shipLength,
         this.hitAmount = hitAmount,
-        this.isSunk = isSunk
+        this.isShipSunk = isShipSunk
+        this.name = name
     } 
 
     hit() {
@@ -12,8 +13,10 @@ class Ship {
 
     isSunk() {
         if (this.hitAmount === this.shipLength) {
-            this.isSunk = true
+            this.isShipSunk = true
+            return true
         }
+        return false
     }
 }
 
