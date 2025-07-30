@@ -20,6 +20,8 @@ class Ship {
 
     getSymbol() {return this.symbol}
 
+    getIsShipSunk() {return this.isShipSunk}
+
     setSymbol() {
         switch (this.name) {
             case "Carrier":
@@ -35,19 +37,19 @@ class Ship {
         }
     }
 
-    hit() {
-        if (this.hitAmount < this.shipLength) {
-            this.hitAmount++
-            this.isSunk()
-        }
-    }
-
-    isSunk() {
+    setIsSunk() {
         if (this.hitAmount === this.shipLength) {
             this.isShipSunk = true
             return true
         }
         return false
+    }
+
+    hit() {
+        if (this.hitAmount < this.shipLength) {
+            this.hitAmount++
+            this.setIsSunk()
+        }
     }
 }
 

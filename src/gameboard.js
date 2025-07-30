@@ -5,7 +5,6 @@ class Gameboard {
         this.boardSize = boardSize
         this.board = []
         this.allShipsSunk = false
-        this.missedShots = []
         this.ships = []
     }
 
@@ -22,7 +21,11 @@ class Gameboard {
                 this.board[i].push("O")
             }
         }
-        this.missedShots = [...this.board]
+    }
+
+    checkifAllShipsSunk() {
+        const allSunk = this.ships.every(ship => ship.getIsShipSunk() === true)
+        if (allSunk) this.allShipsSunk = true
     }
 
     prettyPrint() {
@@ -35,15 +38,14 @@ class Gameboard {
         if (y >= this.boardSize || x >= this.boardSize || y < 0 || x < 0) return
         if (this.board[y][x] === "M" || this.board[y][x] === "H") return
         if (this.board[y][x] === "O") {
-            this.missedShots[y][x] = "M"
+            this.board[y][x] = "M"
         } else {
-            console.log("Ships", this.ships);
             const shipSymbol = this.board[y][x]
-            console.log("Symbol of the ship that was hit", shipSymbol);
             const shipThatWasHit = this.ships.find(s => s.getSymbol() === shipSymbol)
             shipThatWasHit.hit()
             this.board[y][x] = "H"
-            console.log("Ships", this.ships);
+
+            this.checkifAllShipsSunk()
         }
     }
 
@@ -56,7 +58,7 @@ class Gameboard {
             if (x + ship.getShipLength() > this.boardSize) return false
             let xCopy = x
             for (let i = 0; i < ship.getShipLength(); i++) {
-                if (this.board[y][xCopy] === ship.getSymbol()) return false
+                if (this.board[y][xCopy] !== "O") return false
                 xCopy++
             }
             for (let i = 0; i < ship.getShipLength(); i++) {
@@ -69,7 +71,7 @@ class Gameboard {
         if (y + ship.getShipLength() > this.boardSize) return false
         let yCopy = y
         for (let i = 0; i < ship.getShipLength(); i++) {
-            if (this.board[yCopy][x] === ship.getSymbol()) return false
+            if (this.board[yCopy][x] !== "O") return false
             yCopy++
         }
         for (let i = 0; i < ship.getShipLength(); i++) {
@@ -82,30 +84,19 @@ class Gameboard {
 
 }
 
-/*function main() {
+function main() {
     const board = new Gameboard()
     board.setGameBoard()
 
-    const carrier = new Ship(5)
-    console.log(board.placeShip(carrier, 0, 0))
+    const cruiser = new Ship(3, "Cruiser")
+    console.log(board.placeShip(cruiser, 2, 5, false))
 
-    const battleship = new Ship(4, "Battleship")
-    console.log(board.placeShip(battleship, 5, 5))
-
-    board.receiveAttack(1, 0)
-    board.receiveAttack(0, 0)
-    board.receiveAttack(0, 1)
-    board.receiveAttack(0, 2)
-    board.receiveAttack(0, 3)
-    board.receiveAttack(0, 4)
-
-    
-    console.log(board.placeShip(carrier, 1, 0, false))
-    console.log(board.placeShip(carrier, 5, 4, false))
+    const destroyer = new Ship(2, "Destroyer")
+    console.log(board.placeShip(destroyer, 2, 5, true))
 
     board.prettyPrint()
 }
 
-main()*/
+main()
 
 module.exports = Gameboard

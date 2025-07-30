@@ -1,4 +1,36 @@
 body {
-  background-color: #f0f0f0;
-  font-family: sans-serif;
+  background-color: white;
+  font-family: 'Roboto', sans-serif;
+}
+
+#playerBoardContainer {
+  width: 30vw;
+  display: flex;
+  flex-wrap: wrap;
+  aspect-ratio: 1/1;
+}
+
+.boardRowDiv {
+  display: flex;
+  width: 100%;
+}
+
+.cellDiv {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.cellDiv:hover {
+  background-color: rgb(214, 214, 214);
+  cursor: pointer;
+}
+
+.borderRed {
+  border: 3px solid red;
+}
+
+.borderBlack {
+  border: 3px solid black;
 }
