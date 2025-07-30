@@ -1,9 +1,15 @@
 class Ship {
-    constructor(shipLength, hitAmount=0, isShipSunk=false, name="") {
+    constructor(shipLength, name="Carrier") {
         this.shipLength = shipLength,
-        this.hitAmount = hitAmount,
-        this.isShipSunk = isShipSunk
+        this.hitAmount = 0,
+        this.isShipSunk = false
         this.name = name
+        this.symbol = this.setSymbol()
+        //C - Carrier
+        //B - Battleship
+        //R - Cruiser
+        //S - Submarine
+        //D - Destroyer
     } 
 
     getShipLength() {return this.shipLength}
@@ -12,8 +18,28 @@ class Ship {
 
     getHitAmount() {return this.hitAmount}
 
+    getSymbol() {return this.symbol}
+
+    setSymbol() {
+        switch (this.name) {
+            case "Carrier":
+                return "C"
+            case "Battleship":
+                return "B"
+            case "Cruiser":
+                return "R"
+            case "Submarine":
+                return "S"
+            case "Destroyer":
+                return "D"
+        }
+    }
+
     hit() {
-        if (this.hitAmount < this.shipLength) this.hitAmount++
+        if (this.hitAmount < this.shipLength) {
+            this.hitAmount++
+            this.isSunk()
+        }
     }
 
     isSunk() {
@@ -25,4 +51,10 @@ class Ship {
     }
 }
 
+/*function main() {
+
+}
+
+main()*/
+ 
 module.exports = Ship
