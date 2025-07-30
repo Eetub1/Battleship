@@ -1,5 +1,6 @@
-function drawBoard(array) {
-    const playerBoardContainer = document.getElementById("playerBoardContainer")
+function drawBoard(array, left=true) {
+    const player1BoardContainer = document.getElementById("player1BoardContainer")
+    const player2BoardContainer = document.getElementById("player2BoardContainer")
     const size = array.length
 
     for (let i = 0; i < size; i++) {
@@ -13,10 +14,22 @@ function drawBoard(array) {
                 cellDiv.className = "cellDiv borderRed"
             }
             cellDiv.textContent = array[i][j]
+            cellDiv.setAttribute("id", `${i}-${j}`)
+            cellDiv.addEventListener("click", (event) => calculateHit(event))
             rowDiv.appendChild(cellDiv)
         }
-        playerBoardContainer.appendChild(rowDiv)
+        if (left) {
+            player1BoardContainer.appendChild(rowDiv)
+        } else {
+            player2BoardContainer.appendChild(rowDiv)
+        }
     }
+}
+
+function calculateHit(event) {
+    console.log(event.target);
+    const coordinates = event.target.id.split("-")
+    console.log(coordinates);
 }
 
 module.exports = drawBoard

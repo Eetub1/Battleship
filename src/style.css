@@ -3,7 +3,12 @@ body {
   font-family: 'Roboto', sans-serif;
 }
 
-#playerBoardContainer {
+#main {
+  display: flex;
+  justify-content: space-evenly;
+}
+
+#player1BoardContainer, #player2BoardContainer {
   width: 30vw;
   display: flex;
   flex-wrap: wrap;
@@ -33,4 +38,5 @@ body {
 
 .borderBlack {
   border: 3px solid black;
+  color: white;
 }
