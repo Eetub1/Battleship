@@ -36,16 +36,18 @@ class Gameboard {
 
     receiveAttack(y, x) {
         //tä funktio voisi palauttaa true jos iskun laittaminen onnistui
-        if (y >= this.boardSize || x >= this.boardSize || y < 0 || x < 0) return
-        if (this.board[y][x] === "M" || this.board[y][x] === "H") return
+        if (y >= this.boardSize || x >= this.boardSize || y < 0 || x < 0) return false
+        if (this.board[y][x] === "M" || this.board[y][x] === "H") return false
         if (this.board[y][x] === "O") {
             this.board[y][x] = "M"
+            return true
         } else {
             const shipSymbol = this.board[y][x]
             const shipThatWasHit = this.ships.find(s => s.getSymbol() === shipSymbol)
             shipThatWasHit.hit()
             this.board[y][x] = "H"
             this.checkifAllShipsSunk()
+            return true
         }
     }
 
