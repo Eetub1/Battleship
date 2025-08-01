@@ -10,6 +10,40 @@ body {
   border: 1px solid black;
 }*/
 
+button {
+  border: none;
+  padding: 7px;
+  background-color: #a3aeb6;
+  color: white;
+  border-radius: 2px;
+}
+
+dialog {
+  display: flex;
+  align-items: end;
+}
+
+button:hover {
+  cursor: pointer;
+  background-color: #8e9ea8;
+}
+
+#nameDialog {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#submitBtn {
+  margin-top: 5px;
+  width: 5rem;
+}
+
+#submitBtnContainer {
+  display: flex;
+  justify-content: center;
+}
+
 #main {
   display: flex;
   justify-content: space-evenly;

@@ -3,10 +3,6 @@ const Ship = require("./ship.js")
 
 import './style.css'
 
-const playerBoardContainer = document.getElementById("playerBoardContainer")
-const computerBoardContainer = document.getElementById("computerBoardContainer")
-const turnDiv = document.getElementById("turnDiv")
-
 const EMPTY_CELL = "O"
 const HIT_CELL = "H"
 const MISSED_CELL = "M"
@@ -18,7 +14,24 @@ let computer
 let playerName
 let computerName
 
+let playerBoardContainer
+let computerBoardContainer
+let turnDiv = document.getElementById("turnDiv")
 let turn
+
+const mainDiv = document.getElementById("main")
+const nameDialog = document.getElementById("nameDialog")
+const submitBtn = document.getElementById("submitBtn")
+submitBtn.addEventListener("click", (e) => {
+    e.preventDefault()
+    const form = document.forms.nameForm
+    const name = form.name.value
+    if (name.trim() === "") return
+    playerName = name
+    nameDialog.close()
+    setMainDiv()
+    main()
+})
 
 function switchTurn () {
     turn = turn === playerName? computerName : playerName
@@ -140,7 +153,29 @@ function checkIfGameOver() {
     return isOver
 }
 
+function setMainDiv() {
+    mainDiv.innerHTML = `
+    <div>
+      <div class="text">
+        <p>Your board</p>
+      </div>
+      <div id="playerBoardContainer"></div>
+    </div>
+
+    <div>
+      <div class="text">
+        <p >Computer board</p>
+      </div>
+      <div id="computerBoardContainer"></div>
+    </div>
+    `
+
+    playerBoardContainer = document.getElementById("playerBoardContainer")
+    computerBoardContainer = document.getElementById("computerBoardContainer")
+}
+
 function main() {
+
     const carrier = new Ship(5) //C
     const battleship = new Ship(4, "Battleship") //B
     const cruiser = new Ship(3, "Cruiser") //R
@@ -149,14 +184,12 @@ function main() {
 
     //player
     player = new Player("Eetu")
-    playerName = player.getName()
     playerBoard = player.getBoardObject()
     playerBoard.placeShip(carrier, 0, 0, false)
-    playerBoard.placeShip(battleship, 1, 1)
-    playerBoard.placeShip(cruiser, 2, 5, false)
+    playerBoard.placeShip(battleship, 7, 3)
+    playerBoard.placeShip(cruiser, 1, 3, false)
     playerBoard.placeShip(submarine, 9, 0, true)
     playerBoard.placeShip(destroyer, 2, 6, true)
-    drawPlayerBoard(playerBoard.getBoard())
 
     //computer
     computer = new Player("Computer")
@@ -167,11 +200,11 @@ function main() {
     computerBoard.placeShip(cruiser, 7, 3, false)
     computerBoard.placeShip(submarine, 0, 3, true)
     computerBoard.placeShip(destroyer, 2, 6, true)
-    drawComputerBoard(computerBoard.getBoard(), false)
 
+    drawPlayerBoard(playerBoard.getBoard())
+    drawComputerBoard(computerBoard.getBoard(), false)
     turn = playerName
     turnDiv.textContent = `It's ${turn}'s turn`
-    
 }
 
-main()
+nameDialog.showModal()
