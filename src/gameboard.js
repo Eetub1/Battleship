@@ -86,7 +86,7 @@ class Gameboard {
 
 }
 
-function main() {
+/*function main() {
     const board = new Gameboard()
     board.setGameBoard()
 
@@ -99,6 +99,6 @@ function main() {
     board.prettyPrint()
 }
 
-main()
+main()*/
 
 module.exports = Gameboard

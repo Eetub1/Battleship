@@ -19,6 +19,8 @@ let computerBoardContainer
 let turnDiv = document.getElementById("turnDiv")
 let turn
 
+const infoDiv = document.getElementById("gameInfoDiv")
+const infoText = document.querySelector(".infoText")
 const mainDiv = document.getElementById("main")
 const nameDialog = document.getElementById("nameDialog")
 const submitBtn = document.getElementById("submitBtn")
@@ -155,23 +157,66 @@ function checkIfGameOver() {
 
 function setMainDiv() {
     mainDiv.innerHTML = `
-    <div>
-      <div class="text">
-        <p>Your board</p>
-      </div>
-      <div id="playerBoardContainer"></div>
-    </div>
 
-    <div>
-      <div class="text">
-        <p >Computer board</p>
-      </div>
-      <div id="computerBoardContainer"></div>
-    </div>
+        <div>
+            <div class="text">
+                <p>Your board</p>
+            </div>
+            <div id="playerBoardContainer"></div>
+        </div>
+
+        <div>
+            <div class="text">
+                <p>Computer board</p>
+            </div>
+            <div id="computerBoardContainer"></div>
+        </div>
     `
 
     playerBoardContainer = document.getElementById("playerBoardContainer")
     computerBoardContainer = document.getElementById("computerBoardContainer")
+}
+
+let placeShipsPhase 
+let horizontal = true
+let currentShip
+
+function drawShipPlacementBoard(array) {
+    const size = array.length
+    playerBoardContainer.textContent = ""
+
+    for (let i = 0; i < size; i++) {
+        const rowDiv = document.createElement("div")
+        rowDiv.className = "boardRowDiv"
+        for (let j = 0; j < size; j++) {
+            const cellDiv = document.createElement("div")
+            cellDiv.className = `cellDiv`
+            cellDiv.setAttribute("id", `${i}-${j}`)
+            cellDiv.addEventListener("hover", (event) => showIsPlacementValid(event))
+            cellDiv.addEventListener("click", (event) => placePlayerShip(event)) 
+            rowDiv.appendChild(cellDiv)
+        }
+        playerBoardContainer.appendChild(rowDiv)
+    }
+}
+
+function showIsPlacementValid(event) {
+    const [y,x] = event.target.id.split("-")
+    
+
+}
+
+function placePlayerShip(event) {
+    const [y,x] = event.target.id.split("-")
+
+    console.log(`${y} ${x}`);
+}
+
+function placePlayerShips(ships) {
+    
+    drawShipPlacementBoard(playerBoard.getBoard())
+    currentShip = ships[0]
+
 }
 
 function main() {
@@ -182,17 +227,23 @@ function main() {
     const submarine = new Ship(3, "Submarine") //S
     const destroyer = new Ship(2, "Destroyer") //D
 
+    const ships = [carrier, battleship, cruiser, submarine, destroyer]
+
     //player
     player = new Player("Eetu")
     playerBoard = player.getBoardObject()
-    playerBoard.placeShip(carrier, 0, 0, false)
+    placePlayerShips(ships)
+
+    /*playerBoard.placeShip(carrier, 0, 0, false)
     playerBoard.placeShip(battleship, 7, 3)
     playerBoard.placeShip(cruiser, 1, 3, false)
     playerBoard.placeShip(submarine, 9, 0, true)
-    playerBoard.placeShip(destroyer, 2, 6, true)
+    playerBoard.placeShip(destroyer, 2, 6, true)*/
 
+
+    //commented out for now until the ship placement is working correctly
     //computer
-    computer = new Player("Computer")
+    /*computer = new Player("Computer")
     computerName = computer.getName()
     computerBoard = computer.getBoardObject()
     computerBoard.placeShip(carrier, 3, 9, false)
@@ -205,6 +256,7 @@ function main() {
     drawComputerBoard(computerBoard.getBoard(), false)
     turn = playerName
     turnDiv.textContent = `It's ${turn}'s turn`
+    infoDiv.removeAttribute("class")*/
 }
 
 nameDialog.showModal()

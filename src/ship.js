@@ -1,15 +1,10 @@
 class Ship {
     constructor(shipLength, name="Carrier") {
-        this.shipLength = shipLength,
-        this.hitAmount = 0,
+        this.shipLength = shipLength
+        this.hitAmount = 0
         this.isShipSunk = false
         this.name = name
         this.symbol = this.setSymbol()
-        //C - Carrier
-        //B - Battleship
-        //R - Cruiser
-        //S - Submarine
-        //D - Destroyer
     } 
 
     getShipLength() {return this.shipLength}
