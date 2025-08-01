@@ -1,6 +1,5 @@
 const Player = require("./player.js")
 const Ship = require("./ship.js")
-//const drawBoard = require("./handleUI.js")
 
 import './style.css'
 
@@ -10,11 +9,10 @@ const turnDiv = document.getElementById("turnDiv")
 
 let playerBoard
 let computerBoard
-let turn = "player1"
-
-function changeTurn() {
-    turn = turn === "player1" ? "player2" : "player1"
-}
+let player
+let computer
+let playerName
+let computerName
 
 function drawBoard(array, left=true) {
     const size = array.length
@@ -33,11 +31,11 @@ function drawBoard(array, left=true) {
             }
             cellDiv.textContent = array[i][j]
             if (left) {
-                cellDiv.setAttribute("id", `${i}-${j}-player1`)
+                cellDiv.setAttribute("id", `${i}-${j}-${playerName}`)
             } else {
-                cellDiv.setAttribute("id", `${i}-${j}-player2`)
+                cellDiv.setAttribute("id", `${i}-${j}-${computerName}`)
             }
-            cellDiv.addEventListener("click", (event) => calculateHit(event))
+            cellDiv.addEventListener("click", (event) => handleClick(event))
             rowDiv.appendChild(cellDiv)
         }
         if (left) {
@@ -48,35 +46,34 @@ function drawBoard(array, left=true) {
     }
 }
 
-function calculateHit(event) {
-    if (computerBoard.getIsGameOver() === false && playerBoard.getIsGameOver() === false) {
-        console.log(event.target);
-        const clickInfo = event.target.id.split("-")
-        console.log(clickInfo);
+function calculateComputerHit() {
+    setTimeout(() => {
+        const y = Math.floor(Math.random() * playerBoard.getBoard().length)
+        const x = Math.floor(Math.random() * playerBoard.getBoard().length)
 
-        //make it so that a correct square must be clicked before the turn is allowed to be switched
-        if (turn === "player1") {
-            const wasMoveCorrect = computerBoard.receiveAttack(parseInt(clickInfo[0]), parseInt(clickInfo[1]))
-            if (!wasMoveCorrect) return
-            if (clickInfo[2] === "player1") return
-            console.log("Oliko siirto korrekti: ", wasMoveCorrect);
-            drawBoard(computerBoard.getBoard(), false)
-        } else {
-            const wasMoveCorrect = playerBoard.receiveAttack(parseInt(clickInfo[0]), parseInt(clickInfo[1]))
-            if (!wasMoveCorrect) return
-            if (clickInfo[2] === "player2") return
-            drawBoard(playerBoard.getBoard())
-        }
-        if (computerBoard.getIsGameOver() === false && playerBoard.getIsGameOver() === false) {
-            changeTurn()
-            turnDiv.textContent = `It's ${turn}'s turn`
-        } else {
-            turnDiv.textContent = `Congratulations, ${turn} won the game!`
-        }
-    } else {
-        //when game is over, we come here
-        console.log("The game is over!")
+        if (!playerBoard.receiveAttack(y, x)) return
+        drawBoard(playerBoard.getBoard())
+    }, 100)
+}
+
+function handleClick(event) {
+    if (!checkIfGameOver()) {
+        const clickInfo = event.target.id.split("-")
+        if (clickInfo[2] === playerName) return
+
+        if (!computerBoard.receiveAttack(parseInt(clickInfo[0]), parseInt(clickInfo[1]))) return
+        drawBoard(computerBoard.getBoard(), false)
+        checkIfGameOver()
+
+        calculateComputerHit()
+        checkIfGameOver()
     }
+}
+
+function checkIfGameOver() {
+    const isOver = computerBoard.getIsGameOver() === true || playerBoard.getIsGameOver() === true
+    if (isOver) turnDiv.textContent = "The game is over"
+    return isOver
 }
 
 function main() {
@@ -87,7 +84,8 @@ function main() {
     const destroyer = new Ship(2, "Destroyer") //D
 
     //player
-    const player = new Player("Eetu")
+    player = new Player("Eetu")
+    playerName = player.getName()
     playerBoard = player.getBoardObject()
     playerBoard.placeShip(carrier, 0, 0, false)
     playerBoard.placeShip(battleship, 1, 1)
@@ -97,7 +95,8 @@ function main() {
     drawBoard(playerBoard.getBoard())
 
     //computer
-    const computer = new Player("Computer")
+    computer = new Player("Computer")
+    computerName = computer.getName()
     computerBoard = computer.getBoardObject()
     computerBoard.placeShip(carrier, 3, 9, false)
     computerBoard.placeShip(battleship, 4, 4)
@@ -105,6 +104,8 @@ function main() {
     computerBoard.placeShip(submarine, 0, 3, true)
     computerBoard.placeShip(destroyer, 2, 6, true)
     drawBoard(computerBoard.getBoard(), false)
+
+    turnDiv.textContent = `It's ${playerName}'s turn`
 }
 
 main()

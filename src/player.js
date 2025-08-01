@@ -8,6 +8,8 @@ class Player {
     }
 
     getBoardObject() {return this.gameboard}
+
+    getName() {return this.name}
 }
 
 /*function main() {
