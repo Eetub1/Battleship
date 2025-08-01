@@ -14,6 +14,12 @@ let computer
 let playerName
 let computerName
 
+let turn
+
+function switchTurn () {
+    turn = turn === playerName? computerName : playerName
+}
+
 function drawBoard(array, left=true) {
     const size = array.length
 
@@ -48,25 +54,47 @@ function drawBoard(array, left=true) {
 
 function calculateComputerHit() {
     setTimeout(() => {
-        const y = Math.floor(Math.random() * playerBoard.getBoard().length)
-        const x = Math.floor(Math.random() * playerBoard.getBoard().length)
+        let y
+        let x
+        let areCoordinatesValid = false
+        while (!areCoordinatesValid) {
+            y = Math.floor(Math.random() * playerBoard.getBoard().length)
+            x = Math.floor(Math.random() * playerBoard.getBoard().length)
+            areCoordinatesValid = validateCoordinates(y, x, playerBoard.getBoard())
+            if (!areCoordinatesValid) console.log("Ei tärpänny!");
+        }
 
-        if (!playerBoard.receiveAttack(y, x)) return
+        playerBoard.receiveAttack(y, x)
         drawBoard(playerBoard.getBoard())
-    }, 100)
+
+        if (!checkIfGameOver()) {
+            switchTurn()
+            turnDiv.textContent = `It's ${turn}'s turn`
+        }
+    }, 750)
+}
+
+function validateCoordinates(y, x, array) {
+    if (y >= array.length || x >= array.length || y < 0 || x < 0) return false
+    if (array[y][x] === "M" || array[y][x] === "H") return false
+    return true
 }
 
 function handleClick(event) {
     if (!checkIfGameOver()) {
         const clickInfo = event.target.id.split("-")
-        if (clickInfo[2] === playerName) return
+        const y = parseInt(clickInfo[0])
+        const x = parseInt(clickInfo[1])
+        const whoseBoardWasClicked = clickInfo[2]
 
-        if (!computerBoard.receiveAttack(parseInt(clickInfo[0]), parseInt(clickInfo[1]))) return
+        if (whoseBoardWasClicked === playerName) return
+        if (!computerBoard.receiveAttack(y, x)) return
         drawBoard(computerBoard.getBoard(), false)
-        checkIfGameOver()
+        if (checkIfGameOver()) return
+        switchTurn()
 
+        turnDiv.textContent = "Calculating response..."
         calculateComputerHit()
-        checkIfGameOver()
     }
 }
 
@@ -105,7 +133,9 @@ function main() {
     computerBoard.placeShip(destroyer, 2, 6, true)
     drawBoard(computerBoard.getBoard(), false)
 
-    turnDiv.textContent = `It's ${playerName}'s turn`
+    turn = playerName
+    turnDiv.textContent = `It's ${turn}'s turn`
+    
 }
 
 main()
