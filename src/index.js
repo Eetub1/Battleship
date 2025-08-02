@@ -179,6 +179,51 @@ function checkIfGameOver() {
     computerBoardContainer = document.getElementById("computerBoardContainer")
 }*/
 
+function startGame() {
+    mainDiv.innerHTML = `
+
+        <div>
+            <div class="text">
+                <p>Your board</p>
+            </div>
+            <div id="playerBoardContainer"></div>
+        </div>
+
+        <div>
+            <div class="text">
+                <p>Computer board</p>
+            </div>
+            <div id="computerBoardContainer"></div>
+        </div>
+    `
+
+    playerBoardContainer = document.getElementById("playerBoardContainer")
+    computerBoardContainer = document.getElementById("computerBoardContainer")
+
+    const carrier = new Ship(5) //C
+    const battleship = new Ship(4, "Battleship") //B
+    const cruiser = new Ship(3, "Cruiser") //R
+    const submarine = new Ship(3, "Submarine") //S
+    const destroyer = new Ship(2, "Destroyer") //D
+
+    computer = new Player("Computer")
+    computerName = computer.getName()
+    computerBoard = computer.getBoardObject()
+    //in here generate random ship placements for the computer
+
+    computerBoard.placeShip(carrier, 3, 9, false)
+    computerBoard.placeShip(battleship, 4, 4)
+    computerBoard.placeShip(cruiser, 7, 3, false)
+    computerBoard.placeShip(submarine, 0, 3, true)
+    computerBoard.placeShip(destroyer, 2, 6, true)
+
+    drawPlayerBoard(playerBoard.getBoard())
+    drawComputerBoard(computerBoard.getBoard(), false)
+    turn = playerName
+    turnDiv.textContent = `It's ${turn}'s turn`
+    infoDiv.removeAttribute("class")
+}
+
 function setMainDiv() {
     mainDiv.innerHTML = `
 
@@ -187,18 +232,27 @@ function setMainDiv() {
                 <p></p>
             </div>
             <div id="playerBoardContainer"></div>
+            <div id="shipRotationBtnContainer">
+                <button id="shipRotationBtn">Change rotation</button>
+            </div>
         </div>
     `
 
     playerBoardContainer = document.getElementById("playerBoardContainer")
     const infoText = document.querySelector(".text")
     infoText.textContent = "Place your ships"
+    const rotateBtn = document.getElementById("shipRotationBtn")
+    rotateBtn.addEventListener("click", toggleRotation)
 }
 
-let placeShipsPhase 
+let currentShipArrayIndex = 0
 let horizontal = false
 let currentShip
 let isCurrentSquareValidForShip = false
+
+function toggleRotation() {
+    horizontal = horizontal? false : true
+}
 
 function drawShipPlacementBoard(array) {
     const size = array.length
@@ -239,22 +293,33 @@ function showIsPlacementValid(event) {
         let newY = horizontal? y : y + i
 
         const cell = document.getElementById(`${newY}-${newX}`)
+        //check if cell exists because x and y can go out of bounds
+        //ie. x could be 12 and y = 9 when board length is only 10
         if (cell) cell.classList.add(newCellClass)
     }
     isCurrentSquareValidForShip = isValid
 }
 
 function placePlayerShip(event) {
-    const [y,x] = event.target.id.split("-")
-
-    console.log(`${y} ${x}`);
+    //the board should be drawn again after each ship placement
+    if (isCurrentSquareValidForShip) {
+        const [y,x] = event.target.id.split("-").map(str => parseInt(str))
+        playerBoard.placeShip(currentShip, y, x, horizontal)
+        if (currentShipArrayIndex + 1 < ships.length) {
+            currentShipArrayIndex++
+            console.log(currentShipArrayIndex);
+            currentShip = ships[currentShipArrayIndex]
+        } else {
+            console.log("Nyt loppu laivat kesken");
+            //here call function that draws both boards onscreen
+            startGame()
+        }
+    }
 }
 
 function placePlayerShips(ships) {
-    drawShipPlacementBoard(playerBoard.getBoard())
-    
     currentShip = ships[0]
-
+    drawShipPlacementBoard(playerBoard.getBoard())
 }
 
 function main() {
@@ -272,30 +337,6 @@ function main() {
     player = new Player("Eetu")
     playerBoard = player.getBoardObject()
     placePlayerShips(ships)
-
-    /*playerBoard.placeShip(carrier, 0, 0, false)
-    playerBoard.placeShip(battleship, 7, 3)
-    playerBoard.placeShip(cruiser, 1, 3, false)
-    playerBoard.placeShip(submarine, 9, 0, true)
-    playerBoard.placeShip(destroyer, 2, 6, true)*/
-
-
-    //commented out for now until the ship placement is working correctly
-    //computer
-    /*computer = new Player("Computer")
-    computerName = computer.getName()
-    computerBoard = computer.getBoardObject()
-    computerBoard.placeShip(carrier, 3, 9, false)
-    computerBoard.placeShip(battleship, 4, 4)
-    computerBoard.placeShip(cruiser, 7, 3, false)
-    computerBoard.placeShip(submarine, 0, 3, true)
-    computerBoard.placeShip(destroyer, 2, 6, true)
-
-    drawPlayerBoard(playerBoard.getBoard())
-    drawComputerBoard(computerBoard.getBoard(), false)
-    turn = playerName
-    turnDiv.textContent = `It's ${turn}'s turn`
-    infoDiv.removeAttribute("class")*/
 }
 
 nameDialog.showModal()
