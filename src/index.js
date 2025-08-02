@@ -109,7 +109,6 @@ function generateRandomCoordinates(range) {
         y = Math.floor(Math.random() * range)
         x = Math.floor(Math.random() * range)
         areCoordinatesValid = validateCoordinates(y, x, playerBoard.getBoard())
-        if (!areCoordinatesValid) console.log("Ei tärpänny!");
     }
     return [y,x]
 }
@@ -123,7 +122,7 @@ function calculateComputerHit() {
             switchTurn()
             turnDiv.textContent = `It's ${turn}'s turn`
         }
-    }, 750)
+    }, 500)
 }
 
 function validateCoordinates(y, x, array) {
@@ -153,7 +152,10 @@ function handleClick(event) {
 
 function checkIfGameOver() {
     const isOver = computerBoard.getIsGameOver() === true || playerBoard.getIsGameOver() === true
-    if (isOver) turnDiv.textContent = "The game is over"
+    if (isOver) {
+        if (turn === playerName) turnDiv.textContent = "Gongratulations! You won the game!"
+        else turnDiv.textContent = "Game over! Computer won!"
+    }
     return isOver
 }
 
@@ -180,22 +182,10 @@ function startGame() {
     playerBoardContainer = document.getElementById("playerBoardContainer")
     computerBoardContainer = document.getElementById("computerBoardContainer")
 
-    const carrier = new Ship(5) //C
-    const battleship = new Ship(4, "Battleship") //B
-    const cruiser = new Ship(3, "Cruiser") //R
-    const submarine = new Ship(3, "Submarine") //S
-    const destroyer = new Ship(2, "Destroyer") //D
-
     computer = new Player("Computer")
     computerName = computer.getName()
     computerBoard = computer.getBoardObject()
-    //in here generate random ship placements for the computer
-
-    computerBoard.placeShip(carrier, 3, 9, false)
-    computerBoard.placeShip(battleship, 4, 4)
-    computerBoard.placeShip(cruiser, 7, 3, false)
-    computerBoard.placeShip(submarine, 0, 3, true)
-    computerBoard.placeShip(destroyer, 2, 6, true)
+    computerBoard.placeShipsRandomly(ships)
 
     drawPlayerBoard(playerBoard.getBoard())
     drawComputerBoard(computerBoard.getBoard(), false)
@@ -282,7 +272,6 @@ function showIsPlacementValid(event) {
 }
 
 function placePlayerShip(event) {
-    infoText.textContent = currentShip.getShipName()
     //the board should be drawn again after each ship placement
     if (isCurrentSquareValidForShip) {
         const [y,x] = event.target.id.split("-").map(str => parseInt(str))

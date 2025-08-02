@@ -100,7 +100,20 @@ class Gameboard {
         return true
     }
 
+    placeShipsRandomly(ships) {
+        for (const ship of ships) {
+            while (true) {
+                let y = Math.floor(Math.random() * this.boardSize)
+                let x = Math.floor(Math.random() * this.boardSize)
+                let num = Math.floor(Math.random() * 2)
+                let horizontal = num === 0? true : false
+                if (this.placeShip(ship, y, x, horizontal)) break
+            }
+        }
+    }
 }
+
+
 
 /*function main() {
     const board = new Gameboard()
