@@ -51,6 +51,18 @@ class Gameboard {
         }
     }
 
+    validateShipPlacement(length, y, x, horizontal=true) {
+        if (horizontal) {
+            if (x + length > this.boardSize) return false
+            for (let i = 0; i < length; i++) {
+                if (this.board[y][x] !== "O") return false
+                x++
+            }
+            return true
+        }
+        return false
+    }
+
     placeShip(ship, y, x, horizontal=true) {
         const doesShipExist = this.ships.some(s => s.name === ship.name)
         if (doesShipExist) return false

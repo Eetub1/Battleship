@@ -19,6 +19,8 @@ let computerBoardContainer
 let turnDiv = document.getElementById("turnDiv")
 let turn
 
+let ships
+
 const infoDiv = document.getElementById("gameInfoDiv")
 const infoText = document.querySelector(".infoText")
 const mainDiv = document.getElementById("main")
@@ -190,9 +192,9 @@ function drawShipPlacementBoard(array) {
         rowDiv.className = "boardRowDiv"
         for (let j = 0; j < size; j++) {
             const cellDiv = document.createElement("div")
-            cellDiv.className = `cellDiv`
+            cellDiv.className = `placeShipCellDiv`
             cellDiv.setAttribute("id", `${i}-${j}`)
-            cellDiv.addEventListener("hover", (event) => showIsPlacementValid(event))
+            cellDiv.addEventListener("mouseover", (event) => showIsPlacementValid(event))
             cellDiv.addEventListener("click", (event) => placePlayerShip(event)) 
             rowDiv.appendChild(cellDiv)
         }
@@ -201,7 +203,18 @@ function drawShipPlacementBoard(array) {
 }
 
 function showIsPlacementValid(event) {
+    const currentShipLength = currentShip.getShipLength()
     const [y,x] = event.target.id.split("-")
+    //need to divide into cases where horizontal is true and false
+    //need to give the coordinates to boards method that returns true or false
+    //if true then color the squares green, else red
+    if (playerBoard.validateShipPlacement(currentShipLength, parseInt(y), parseInt(x))) {
+        console.log("Is valid!");
+        //draw the area green
+    } else {
+        console.log("Is not valid!");
+        //draw the area red
+    }
     
 
 }
@@ -213,8 +226,8 @@ function placePlayerShip(event) {
 }
 
 function placePlayerShips(ships) {
-    
     drawShipPlacementBoard(playerBoard.getBoard())
+    
     currentShip = ships[0]
 
 }
@@ -227,7 +240,8 @@ function main() {
     const submarine = new Ship(3, "Submarine") //S
     const destroyer = new Ship(2, "Destroyer") //D
 
-    const ships = [carrier, battleship, cruiser, submarine, destroyer]
+    ships = [carrier, battleship, cruiser, submarine, destroyer]
+    currentShip = ships[0]
 
     //player
     player = new Player("Eetu")

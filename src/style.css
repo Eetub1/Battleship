@@ -63,7 +63,7 @@ button:hover {
   width: 100%;
 }
 
-.cellDiv {
+.cellDiv, .placeShipCellDiv{
   flex: 1;
   display: flex;
   justify-content: center;
