@@ -157,7 +157,7 @@ function checkIfGameOver() {
     return isOver
 }
 
-function setMainDiv() {
+/*function setMainDiv() {
     mainDiv.innerHTML = `
 
         <div>
@@ -177,11 +177,28 @@ function setMainDiv() {
 
     playerBoardContainer = document.getElementById("playerBoardContainer")
     computerBoardContainer = document.getElementById("computerBoardContainer")
+}*/
+
+function setMainDiv() {
+    mainDiv.innerHTML = `
+
+        <div>
+            <div class="text">
+                <p></p>
+            </div>
+            <div id="playerBoardContainer"></div>
+        </div>
+    `
+
+    playerBoardContainer = document.getElementById("playerBoardContainer")
+    const infoText = document.querySelector(".text")
+    infoText.textContent = "Place your ships"
 }
 
 let placeShipsPhase 
-let horizontal = true
+let horizontal = false
 let currentShip
+let isCurrentSquareValidForShip = false
 
 function drawShipPlacementBoard(array) {
     const size = array.length
@@ -202,21 +219,29 @@ function drawShipPlacementBoard(array) {
     }
 }
 
-function showIsPlacementValid(event) {
-    const currentShipLength = currentShip.getShipLength()
-    const [y,x] = event.target.id.split("-")
-    //need to divide into cases where horizontal is true and false
-    //need to give the coordinates to boards method that returns true or false
-    //if true then color the squares green, else red
-    if (playerBoard.validateShipPlacement(currentShipLength, parseInt(y), parseInt(x))) {
-        console.log("Is valid!");
-        //draw the area green
-    } else {
-        console.log("Is not valid!");
-        //draw the area red
-    }
-    
+function clearHighlights() {
+    const cells = document.querySelectorAll(".placeShipCellDiv")
+    cells.forEach(cell => {
+        cell.classList.remove("validPlacement", "invalidPlacement")
+    })
+}
 
+function showIsPlacementValid(event) {
+    clearHighlights()
+
+    const length = currentShip.getShipLength()
+    const [y,x] = event.target.id.split("-").map(str => parseInt(str))
+    const isValid = playerBoard.validateShipPlacement(length, y, x, horizontal)
+    const newCellClass = isValid? "validPlacement" : "invalidPlacement"
+
+    for (let i = 0; i < length; i++) {
+        let newX = horizontal? x + i : x
+        let newY = horizontal? y : y + i
+
+        const cell = document.getElementById(`${newY}-${newX}`)
+        if (cell) cell.classList.add(newCellClass)
+    }
+    isCurrentSquareValidForShip = isValid
 }
 
 function placePlayerShip(event) {

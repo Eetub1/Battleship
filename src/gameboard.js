@@ -35,7 +35,6 @@ class Gameboard {
     }
 
     receiveAttack(y, x) {
-        //tä funktio voisi palauttaa true jos iskun laittaminen onnistui
         if (y >= this.boardSize || x >= this.boardSize || y < 0 || x < 0) return false
         if (this.board[y][x] === "M" || this.board[y][x] === "H") return false
         if (this.board[y][x] === "O") {
@@ -59,8 +58,13 @@ class Gameboard {
                 x++
             }
             return true
+        } 
+        if (y + length > this.boardSize) return false
+        for (let i = 0; i < length; i++) {
+            if (this.board[y][x] !== "O") return false
+            y++
         }
-        return false
+        return true
     }
 
     placeShip(ship, y, x, horizontal=true) {

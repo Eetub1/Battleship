@@ -102,3 +102,10 @@ button:hover {
   display: flex;
   justify-content: center;
 }
+
+.validPlacement {
+  background-color: green;
+}
+.invalidPlacement {
+  background-color: red;
+}
