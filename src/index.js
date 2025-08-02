@@ -22,7 +22,7 @@ let turn
 let ships
 
 const infoDiv = document.getElementById("gameInfoDiv")
-const infoText = document.querySelector(".infoText")
+const infoText = document.getElementById("infoText")
 const mainDiv = document.getElementById("main")
 const nameDialog = document.getElementById("nameDialog")
 const submitBtn = document.getElementById("submitBtn")
@@ -157,28 +157,6 @@ function checkIfGameOver() {
     return isOver
 }
 
-/*function setMainDiv() {
-    mainDiv.innerHTML = `
-
-        <div>
-            <div class="text">
-                <p>Your board</p>
-            </div>
-            <div id="playerBoardContainer"></div>
-        </div>
-
-        <div>
-            <div class="text">
-                <p>Computer board</p>
-            </div>
-            <div id="computerBoardContainer"></div>
-        </div>
-    `
-
-    playerBoardContainer = document.getElementById("playerBoardContainer")
-    computerBoardContainer = document.getElementById("computerBoardContainer")
-}*/
-
 function startGame() {
     mainDiv.innerHTML = `
 
@@ -196,6 +174,8 @@ function startGame() {
             <div id="computerBoardContainer"></div>
         </div>
     `
+
+    infoText.textContent = "Game started!"
 
     playerBoardContainer = document.getElementById("playerBoardContainer")
     computerBoardContainer = document.getElementById("computerBoardContainer")
@@ -221,7 +201,6 @@ function startGame() {
     drawComputerBoard(computerBoard.getBoard(), false)
     turn = playerName
     turnDiv.textContent = `It's ${turn}'s turn`
-    infoDiv.removeAttribute("class")
 }
 
 function setMainDiv() {
@@ -239,8 +218,6 @@ function setMainDiv() {
     `
 
     playerBoardContainer = document.getElementById("playerBoardContainer")
-    const infoText = document.querySelector(".text")
-    infoText.textContent = "Place your ships"
     const rotateBtn = document.getElementById("shipRotationBtn")
     rotateBtn.addEventListener("click", toggleRotation)
 }
@@ -263,7 +240,11 @@ function drawShipPlacementBoard(array) {
         rowDiv.className = "boardRowDiv"
         for (let j = 0; j < size; j++) {
             const cellDiv = document.createElement("div")
-            cellDiv.className = `placeShipCellDiv`
+            if (array[i][j] !== EMPTY_CELL) {
+                cellDiv.className = `placeShipCellDiv green`
+            } else {
+                cellDiv.className = `placeShipCellDiv`    
+            }
             cellDiv.setAttribute("id", `${i}-${j}`)
             cellDiv.addEventListener("mouseover", (event) => showIsPlacementValid(event))
             cellDiv.addEventListener("click", (event) => placePlayerShip(event)) 
@@ -301,24 +282,25 @@ function showIsPlacementValid(event) {
 }
 
 function placePlayerShip(event) {
+    infoText.textContent = currentShip.getShipName()
     //the board should be drawn again after each ship placement
     if (isCurrentSquareValidForShip) {
         const [y,x] = event.target.id.split("-").map(str => parseInt(str))
         playerBoard.placeShip(currentShip, y, x, horizontal)
         if (currentShipArrayIndex + 1 < ships.length) {
             currentShipArrayIndex++
-            console.log(currentShipArrayIndex);
             currentShip = ships[currentShipArrayIndex]
+            infoText.textContent = `Place your ${currentShip.getShipName()}`
+            drawShipPlacementBoard(playerBoard.getBoard())
         } else {
-            console.log("Nyt loppu laivat kesken");
-            //here call function that draws both boards onscreen
+            //we ran out of ships to place so we start the game
             startGame()
         }
     }
 }
 
 function placePlayerShips(ships) {
-    currentShip = ships[0]
+    infoText.textContent = `Place your ${currentShip.getShipName()}`
     drawShipPlacementBoard(playerBoard.getBoard())
 }
 
