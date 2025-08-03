@@ -1,5 +1,3 @@
-const Ship = require("./ship")
-
 class Gameboard {
     constructor(boardSize=10) {
         this.boardSize = boardSize
