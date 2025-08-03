@@ -3,37 +3,16 @@ const Ship = require("./ship.js")
 const GameBoard = require("./gameboard.js")
 import './style.css'
 
-const EMPTY_CELL = "O"
-const HIT_CELL = "H"
-const MISSED_CELL = "M"
+//code for DOM manipulation
+//=================================================================================
 
-const constants = {
-    EMPTY_CELL: "O",
-    HIT_CELL: "H",
-    MISSED_CELL: "M"
-}
-
-let playerBoard
-let computerBoard
-let player
-let computer
-let playerName
-let computerName
-let playerArray
-let computerArray
-
-const playAgainBtn = document.getElementById("playAgainBtn")
-playAgainBtn.addEventListener("click", playAgain)
-let playerBoardContainer
-let computerBoardContainer
-let turnDiv = document.getElementById("turnDiv")
-let turn
-
-let ships
-
+const turnDiv = document.getElementById("turnDiv")
 const infoText = document.getElementById("infoText")
 const mainDiv = document.getElementById("main")
 const nameDialog = document.getElementById("nameDialog")
+const playAgainBtn = document.getElementById("playAgainBtn")
+playAgainBtn.addEventListener("click", playAgain)
+
 const submitBtn = document.getElementById("submitBtn")
 submitBtn.addEventListener("click", (e) => {
     e.preventDefault()
@@ -46,36 +25,12 @@ submitBtn.addEventListener("click", (e) => {
     main()
 })
 
-function switchTurn () {
-    turn = turn === playerName? computerName : playerName
-}
-
 function setTurnDivText(text) {
     turnDiv.textContent = text
 }
 
 function setInfoText(text) {
     infoText.textContent = text
-}
-
-function playAgain() {
-    playAgainBtn.classList.add("hidden")
-    setTurnDivText("")
-    setMainDiv()
-    playerBoard = new GameBoard()
-    playerBoard.setGameBoard()
-    playerArray = playerBoard.getBoard()
-
-    const carrier = new Ship(5) //C
-    const battleship = new Ship(4, "Battleship") //B
-    const cruiser = new Ship(3, "Cruiser") //R
-    const submarine = new Ship(3, "Submarine") //S
-    const destroyer = new Ship(2, "Destroyer") //D
-    ships = [carrier, battleship, cruiser, submarine, destroyer]
-    currentShip = ships[0]
-    isCurrentSquareValidForShip = false
-    currentShipArrayIndex = 0
-    placePlayerShips(ships)
 }
 
 //type is either "player", "computer" or "placement"
@@ -137,6 +92,62 @@ function drawBoard(array, type) {
     }
 }
 
+//Code related to game logic
+//==================================================================================
+const constants = {
+    EMPTY_CELL: "O",
+    HIT_CELL: "H",
+    MISSED_CELL: "M"
+}
+
+let player
+let playerName
+let playerBoard
+let playerArray
+let playerBoardContainer
+
+let computer
+let computerName
+let computerBoard
+let computerArray
+let computerBoardContainer
+
+let ships
+let turn
+
+let horizontal = false
+let currentShip
+let isCurrentSquareValidForShip = false
+let currentShipArrayIndex = 0
+
+function switchTurn () {
+    turn = turn === playerName? computerName : playerName
+}
+
+function setShips() {
+    const carrier = new Ship(5) //C
+    const battleship = new Ship(4, "Battleship") //B
+    const cruiser = new Ship(3, "Cruiser") //R
+    const submarine = new Ship(3, "Submarine") //S
+    const destroyer = new Ship(2, "Destroyer") //D
+    ships = [carrier, battleship, cruiser, submarine, destroyer]
+    currentShip = ships[0]
+    isCurrentSquareValidForShip = false
+    currentShipArrayIndex = 0
+    setInfoText(`Place your ${currentShip.getShipName()}`)
+    drawBoard(playerArray, "placement")
+}
+
+function playAgain() {
+    playAgainBtn.classList.add("hidden")
+    setTurnDivText("")
+    setMainDiv()
+    playerBoard = new GameBoard()
+    playerBoard.setGameBoard()
+    playerArray = playerBoard.getBoard()
+    setShips()
+}
+
 //helper function
 function generateRandomCoordinates(range) {
     let y,x
@@ -149,12 +160,10 @@ function generateRandomCoordinates(range) {
     return [y,x]
 }
 
-//voi olla vaikeampi eriyttää toiseen moduuliin
 function calculateComputerHit() {
     setTimeout(() => {
         const [y,x] = generateRandomCoordinates(playerArray.length)
         playerBoard.receiveAttack(y, x)
-        //drawPlayerBoard(playerArray)
         drawBoard(playerArray, "player")
         if (!checkIfGameOver()) {
             switchTurn()
@@ -163,7 +172,7 @@ function calculateComputerHit() {
     }, 50)
 }
 
-//helper function only needs constant object as parameter also
+//helper function only needs constant object as parameter
 function validateCoordinates(y, x, array) {
     if (y >= array.length || x >= array.length || y < 0 || x < 0) return false
     if (array[y][x] === constants.MISSED_CELL || array[y][x] === constants.HIT_CELL) return false
@@ -181,7 +190,6 @@ function handleClick(event) {
         if (whoseBoardWasClicked === playerName) return
         if (!computerBoard.receiveAttack(y, x)) return
         drawBoard(computerArray, "computer")
-        //drawComputerBoard(computerArray)
         if (checkIfGameOver()) return
         switchTurn()
         setTurnDivText("Calculating response...")
@@ -201,7 +209,6 @@ function checkIfGameOver() {
 
 function startGame() {
     mainDiv.innerHTML = `
-
         <div>
             <div class="text">
                 <p>Your board</p>
@@ -216,7 +223,6 @@ function startGame() {
             <div id="computerBoardContainer"></div>
         </div>
     `
-
     setInfoText("Game started!")
 
     playerBoardContainer = document.getElementById("playerBoardContainer")
@@ -229,16 +235,13 @@ function startGame() {
     computerBoard.placeShipsRandomly(ships)
 
     drawBoard(playerArray, "player")
-    //drawPlayerBoard(playerArray)
     drawBoard(computerArray, "computer")
-    //drawComputerBoard(computerArray)
     turn = playerName
     setTurnDivText(`It's ${turn}'s turn`)
 }
 
 function setMainDiv() {
     mainDiv.innerHTML = `
-
         <div>
             <div class="text">
                 <p></p>
@@ -249,16 +252,10 @@ function setMainDiv() {
             </div>
         </div>
     `
-
     playerBoardContainer = document.getElementById("playerBoardContainer")
     const rotateBtn = document.getElementById("shipRotationBtn")
     rotateBtn.addEventListener("click", toggleRotation)
 }
-
-let horizontal = false
-let currentShip
-let isCurrentSquareValidForShip = false
-let currentShipArrayIndex = 0
 
 function toggleRotation() {
     horizontal = horizontal? false : true
@@ -300,35 +297,17 @@ function placePlayerShip(event) {
             currentShip = ships[currentShipArrayIndex]
             setInfoText(`Place your ${currentShip.getShipName()}`)
             drawBoard(playerArray, "placement")
-            //drawShipPlacementBoard(playerArray)
         } else {
-            //we ran out of ships to place so we start the game
             startGame()
         }
     }
 }
 
-function placePlayerShips(ships) {
-    setInfoText(`Place your ${currentShip.getShipName()}`)
-    drawBoard(playerArray, "placement")
-    //drawShipPlacementBoard(playerArray)
-}
-
 function main() {
-
-    const carrier = new Ship(5) //C
-    const battleship = new Ship(4, "Battleship") //B
-    const cruiser = new Ship(3, "Cruiser") //R
-    const submarine = new Ship(3, "Submarine") //S
-    const destroyer = new Ship(2, "Destroyer") //D
-    ships = [carrier, battleship, cruiser, submarine, destroyer]
-    currentShip = ships[0]
-
-    //player
     player = new Player("Eetu")
     playerBoard = player.getBoardObject()
     playerArray = playerBoard.getBoard()
-    placePlayerShips(ships)
+    setShips()
 }
 
 //the whole program starts from the opening of this modal
