@@ -78,88 +78,62 @@ function playAgain() {
     placePlayerShips(ships)
 }
 
-function drawComputerBoard(array) {
+//type is either "player", "computer" or "placement"
+//depending on which type of board we want to draw
+function drawBoard(array, type) {
     const size = array.length
-    computerBoardContainer.textContent = ""
+
+    if (type === "computer") computerBoardContainer.textContent = ""
+    else playerBoardContainer.textContent = ""
 
     for (let i = 0; i < size; i++) {
         const rowDiv = document.createElement("div")
         rowDiv.className = "boardRowDiv"
         for (let j = 0; j < size; j++) {
             const cellDiv = document.createElement("div")
-            switch(array[i][j]) {
-                case constants.HIT_CELL:
-                    cellDiv.className = "cellDiv green"
-                    break
-                case constants.MISSED_CELL:
-                    cellDiv.className = "cellDiv red"
-                    break
-                case constants.EMPTY_CELL:
-                    cellDiv.className = "cellDiv"
-                    break
-                default:
-                    cellDiv.className = "cellDiv blue"
-                    break
-            }
-            cellDiv.setAttribute("id", `${i}-${j}-${computerName}`)
-            cellDiv.addEventListener("click", (event) => handleClick(event))
-            rowDiv.appendChild(cellDiv)
-        }
-        computerBoardContainer.appendChild(rowDiv)
-    }
-}
-
-function drawPlayerBoard(array) {
-    const size = array.length
-    playerBoardContainer.textContent = ""
-
-    for (let i = 0; i < size; i++) {
-        const rowDiv = document.createElement("div")
-        rowDiv.className = "boardRowDiv"
-        for (let j = 0; j < size; j++) {
-            const cellDiv = document.createElement("div")
-            switch(array[i][j]) {
-                case constants.EMPTY_CELL:
-                   cellDiv.className = "cellDiv"
-                   break
-                case constants.HIT_CELL:
-                    cellDiv.className = "cellDiv green"
-                    break
-                case constants.MISSED_CELL:
-                    cellDiv.className = "cellDiv red"
-                    break
-                default:
-                    cellDiv.className = "cellDiv blue"
-                    break
-            }
-            cellDiv.setAttribute("id", `${i}-${j}-${playerName}`)
-            cellDiv.addEventListener("click", (event) => handleClick(event))
-            rowDiv.appendChild(cellDiv)
-        }
-        playerBoardContainer.appendChild(rowDiv)
-    }
-}
-
-function drawShipPlacementBoard(array) {
-    const size = array.length
-    playerBoardContainer.textContent = ""
-
-    for (let i = 0; i < size; i++) {
-        const rowDiv = document.createElement("div")
-        rowDiv.className = "boardRowDiv"
-        for (let j = 0; j < size; j++) {
-            const cellDiv = document.createElement("div")
-            if (array[i][j] !== constants.EMPTY_CELL) {
-                cellDiv.className = `placeShipCellDiv green`
+            const value = array[i][j]
+            if (type === "placement") {
+                if (value !== constants.EMPTY_CELL) cellDiv.className = `placeShipCellDiv green`
+                else cellDiv.className = `placeShipCellDiv`
+                cellDiv.setAttribute("id", `${i}-${j}`)
+                cellDiv.addEventListener("mouseover", (event) => showIsPlacementValid(event))
+                cellDiv.addEventListener("click", (event) => placePlayerShip(event)) 
             } else {
-                cellDiv.className = `placeShipCellDiv`    
+                if (type === "player") {
+                    switch(value) {
+                        case constants.MISSED_CELL:
+                            cellDiv.className = "cellDiv red"
+                            break
+                        case constants.HIT_CELL:
+                            cellDiv.className = "cellDiv green"
+                            break
+                        case constants.EMPTY_CELL:
+                            cellDiv.className = "cellDiv"
+                            break
+                        default:
+                            cellDiv.className = "cellDiv blue"
+                            break
+                    }
+                } else {
+                    switch(value) {
+                        case constants.HIT_CELL:
+                            cellDiv.className = "cellDiv green"
+                            break
+                        case constants.MISSED_CELL:
+                            cellDiv.className = "cellDiv red"
+                            break
+                        default:
+                            cellDiv.className = "cellDiv"
+                            break
+                    }
+                }
+                cellDiv.setAttribute("id", `${i}-${j}-${type === "player" ? playerName : computerName}`)
+                cellDiv.addEventListener("click", (event) => handleClick(event))
             }
-            cellDiv.setAttribute("id", `${i}-${j}`)
-            cellDiv.addEventListener("mouseover", (event) => showIsPlacementValid(event))
-            cellDiv.addEventListener("click", (event) => placePlayerShip(event)) 
             rowDiv.appendChild(cellDiv)
         }
-        playerBoardContainer.appendChild(rowDiv)
+        if (type === "computer") computerBoardContainer.appendChild(rowDiv)
+        else playerBoardContainer.appendChild(rowDiv)
     }
 }
 
@@ -180,7 +154,8 @@ function calculateComputerHit() {
     setTimeout(() => {
         const [y,x] = generateRandomCoordinates(playerArray.length)
         playerBoard.receiveAttack(y, x)
-        drawPlayerBoard(playerArray)
+        //drawPlayerBoard(playerArray)
+        drawBoard(playerArray, "player")
         if (!checkIfGameOver()) {
             switchTurn()
             setTurnDivText(`It's ${turn}'s turn`)
@@ -205,7 +180,8 @@ function handleClick(event) {
 
         if (whoseBoardWasClicked === playerName) return
         if (!computerBoard.receiveAttack(y, x)) return
-        drawComputerBoard(computerArray, false)
+        drawBoard(computerArray, "computer")
+        //drawComputerBoard(computerArray)
         if (checkIfGameOver()) return
         switchTurn()
         setTurnDivText("Calculating response...")
@@ -252,8 +228,10 @@ function startGame() {
     computerArray = computerBoard.getBoard()
     computerBoard.placeShipsRandomly(ships)
 
-    drawPlayerBoard(playerArray)
-    drawComputerBoard(computerArray, false)
+    drawBoard(playerArray, "player")
+    //drawPlayerBoard(playerArray)
+    drawBoard(computerArray, "computer")
+    //drawComputerBoard(computerArray)
     turn = playerName
     setTurnDivText(`It's ${turn}'s turn`)
 }
@@ -314,7 +292,6 @@ function showIsPlacementValid(event) {
 }
 
 function placePlayerShip(event) {
-    //the board should be drawn again after each ship placement
     if (isCurrentSquareValidForShip) {
         const [y,x] = event.target.id.split("-").map(str => parseInt(str))
         playerBoard.placeShip(currentShip, y, x, horizontal)
@@ -322,7 +299,8 @@ function placePlayerShip(event) {
             currentShipArrayIndex++
             currentShip = ships[currentShipArrayIndex]
             setInfoText(`Place your ${currentShip.getShipName()}`)
-            drawShipPlacementBoard(playerArray)
+            drawBoard(playerArray, "placement")
+            //drawShipPlacementBoard(playerArray)
         } else {
             //we ran out of ships to place so we start the game
             startGame()
@@ -332,7 +310,8 @@ function placePlayerShip(event) {
 
 function placePlayerShips(ships) {
     setInfoText(`Place your ${currentShip.getShipName()}`)
-    drawShipPlacementBoard(playerArray)
+    drawBoard(playerArray, "placement")
+    //drawShipPlacementBoard(playerArray)
 }
 
 function main() {
