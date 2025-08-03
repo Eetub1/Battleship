@@ -1,5 +1,6 @@
 const Player = require("./player.js")
 const Ship = require("./ship.js")
+const GameBoard = require("./gameboard.js")
 
 import './style.css'
 
@@ -14,6 +15,8 @@ let computer
 let playerName
 let computerName
 
+const playAgainBtn = document.getElementById("playAgainBtn")
+playAgainBtn.addEventListener("click", playAgain)
 let playerBoardContainer
 let computerBoardContainer
 let turnDiv = document.getElementById("turnDiv")
@@ -41,6 +44,26 @@ function switchTurn () {
     turn = turn === playerName? computerName : playerName
 }
 
+function playAgain() {
+    playAgainBtn.classList.add("hidden")
+    turnDiv.textContent = ""
+    setMainDiv()
+    playerBoard = new GameBoard()
+    playerBoard.setGameBoard()
+    computerBoard = new GameBoard()
+    computerBoard.setGameBoard()
+    const carrier = new Ship(5) //C
+    const battleship = new Ship(4, "Battleship") //B
+    const cruiser = new Ship(3, "Cruiser") //R
+    const submarine = new Ship(3, "Submarine") //S
+    const destroyer = new Ship(2, "Destroyer") //D
+    ships = [carrier, battleship, cruiser, submarine, destroyer]
+    currentShip = ships[0]
+    isCurrentSquareValidForShip = false
+    currentShipArrayIndex = 0
+    placePlayerShips(ships)
+}
+
 function drawComputerBoard(array) {
     const size = array.length
     computerBoardContainer.textContent = ""
@@ -57,8 +80,11 @@ function drawComputerBoard(array) {
                 case MISSED_CELL:
                     cellDiv.className = "cellDiv red"
                     break
-                default:
+                case EMPTY_CELL:
                     cellDiv.className = "cellDiv"
+                    break
+                default:
+                    cellDiv.className = "cellDiv blue"
                     break
             }
             //cellDiv.textContent = array[i][j]
@@ -122,7 +148,7 @@ function calculateComputerHit() {
             switchTurn()
             turnDiv.textContent = `It's ${turn}'s turn`
         }
-    }, 500)
+    }, 50)
 }
 
 function validateCoordinates(y, x, array) {
@@ -153,8 +179,9 @@ function handleClick(event) {
 function checkIfGameOver() {
     const isOver = computerBoard.getIsGameOver() === true || playerBoard.getIsGameOver() === true
     if (isOver) {
-        if (turn === playerName) turnDiv.textContent = "Gongratulations! You won the game!"
+        if (turn === playerName) turnDiv.textContent = "Congratulations! You won the game!"
         else turnDiv.textContent = "Game over! Computer won!"
+        playAgainBtn.classList.remove("hidden")
     }
     return isOver
 }
@@ -212,10 +239,10 @@ function setMainDiv() {
     rotateBtn.addEventListener("click", toggleRotation)
 }
 
-let currentShipArrayIndex = 0
 let horizontal = false
 let currentShip
 let isCurrentSquareValidForShip = false
+let currentShipArrayIndex = 0
 
 function toggleRotation() {
     horizontal = horizontal? false : true
@@ -300,7 +327,6 @@ function main() {
     const cruiser = new Ship(3, "Cruiser") //R
     const submarine = new Ship(3, "Submarine") //S
     const destroyer = new Ship(2, "Destroyer") //D
-
     ships = [carrier, battleship, cruiser, submarine, destroyer]
     currentShip = ships[0]
 

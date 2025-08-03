@@ -90,6 +90,8 @@ button:hover {
 
 #turnDivContainer {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
   margin-top: 2rem;
 }
@@ -111,6 +113,11 @@ button:hover {
 .validPlacement {
   background-color: green;
 }
+
 .invalidPlacement {
   background-color: red;
+}
+
+.hidden {
+  display: none;
 }
