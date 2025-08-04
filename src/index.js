@@ -269,8 +269,6 @@ function handleClick(event) {
         if (whoseBoardWasClicked === playerName) return
         const y = parseInt(clickInfo[0])
         const x = parseInt(clickInfo[1])
-    
-
         if (!computerBoard.receiveAttack(y, x)) return
         drawBoard(computerArray, "computer")
         if (checkIfGameOver()) return
@@ -279,19 +277,54 @@ function handleClick(event) {
         calculateComputerHit()
     }
 }
+let wasPreviousAttackHit = false
+let huntMode = true
+let previousHitCoordinates
+
+const intelligenceLevel = {
+    DUMB: "D",
+    SMART: "S"
+}
+let computerIntelligence = intelligenceLevel.DUMB
+
+function calculateSmartAttack() {
+    let [y,x] = previousHitCoordinates
+    if (validateCoordinates(y + 1, x, playerArray)) return [y + 1, x]
+    if (validateCoordinates(y, x + 1, playerArray)) return [y, x + 1]
+    if (validateCoordinates(y - 1, x, playerArray)) return [y - 1, x]
+    if (validateCoordinates(y, x - 1, playerArray)) return [y, x - 1]
+    else {
+        return generateRandomCoordinates(playerArray.length)
+    }
+}
 
 function calculateComputerHit() {
     setTimeout(() => {
-        //here if player wants to play against smarter ai
-        //we can instead call a function that generates coordinates in a smarter way
-        const [y,x] = generateRandomCoordinates(playerArray.length)
+        let y,x
+        if (computerIntelligence === intelligenceLevel.DUMB || huntMode === true) {
+            [y,x] = generateRandomCoordinates(playerArray.length)
+        } else {
+            [y,x] = calculateSmartAttack()
+        }
         playerBoard.receiveAttack(y, x)
+
+        if (playerArray[y][x] === constants.HIT_CELL) {
+            wasPreviousAttackHit = true
+            huntMode = false
+            previousHitCoordinates = [y,x]
+        } else {
+            wasPreviousAttackHit = false
+            huntMode = true
+        }
+        console.log("Oliko tietokoneen viime isku osuma: ",wasPreviousAttackHit);
+        console.log("Koordinaatit: ", previousHitCoordinates);
+
         drawBoard(playerArray, "player")
         if (!checkIfGameOver()) {
             switchTurn()
             setTurnDivText(`It's ${turn}'s turn`)
         }
-    }, 50)
+    }, 50/*Math.floor(Math.random() * 500) + 500*/)
     //after this we will await for players response
 }
 
