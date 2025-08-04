@@ -46,6 +46,23 @@ class Gameboard {
         return true
     }
 
+    //this can be deleted
+    shipStatsHelperFunc() {
+        for (const ship of this.ships) {
+            console.log(`Pituus: ${ship.getShipLength()} Osumat: ${ship.getHitAmount()} Onko tuhottu: ${ship.getIsShipSunk()}`);
+        }
+        console.log(" ");
+    }
+
+    markHit(y, x) {
+        const shipSymbol = this.board[y][x]
+        const shipThatWasHit = this.ships.find(s => s.getSymbol() === shipSymbol)
+        shipThatWasHit.hit()
+        this.shipStatsHelperFunc()
+        this.board[y][x] = this.constants.HIT_CELL
+        this.checkifAllShipsSunk()
+    }
+
     receiveAttack(y, x) {
         const wasAttackValid = this.validateAttack(y, x)
         if (!wasAttackValid) return
@@ -55,11 +72,7 @@ class Gameboard {
             this.board[y][x] = this.constants.MISSED_CELL
             return true
         } else {
-            const shipSymbol = this.board[y][x]
-            const shipThatWasHit = this.ships.find(s => s.getSymbol() === shipSymbol)
-            shipThatWasHit.hit()
-            this.board[y][x] = this.constants.HIT_CELL
-            this.checkifAllShipsSunk()
+            this.markHit(y, x)
             return true
         }
     }
@@ -85,7 +98,6 @@ class Gameboard {
         const length = ship.getShipLength()
         const doesShipExist = this.ships.some(s => s.name === ship.name)
         if (doesShipExist) return false
-        console.log(y, x);
 
         if (y >= this.boardSize || x >= this.boardSize || y < 0 || x < 0) return false
         if (horizontal) {
