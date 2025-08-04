@@ -160,18 +160,6 @@ function generateRandomCoordinates(range) {
     return [y,x]
 }
 
-function calculateComputerHit() {
-    setTimeout(() => {
-        const [y,x] = generateRandomCoordinates(playerArray.length)
-        playerBoard.receiveAttack(y, x)
-        drawBoard(playerArray, "player")
-        if (!checkIfGameOver()) {
-            switchTurn()
-            setTurnDivText(`It's ${turn}'s turn`)
-        }
-    }, 50)
-}
-
 //helper function only needs constant object as parameter
 function validateCoordinates(y, x, array) {
     if (y >= array.length || x >= array.length || y < 0 || x < 0) return false
@@ -183,11 +171,12 @@ function handleClick(event) {
     if (turn !== playerName) return
     if (!checkIfGameOver()) {
         const clickInfo = event.target.id.split("-")
+        const whoseBoardWasClicked = clickInfo[2]
+        if (whoseBoardWasClicked === playerName) return
         const y = parseInt(clickInfo[0])
         const x = parseInt(clickInfo[1])
-        const whoseBoardWasClicked = clickInfo[2]
+    
 
-        if (whoseBoardWasClicked === playerName) return
         if (!computerBoard.receiveAttack(y, x)) return
         drawBoard(computerArray, "computer")
         if (checkIfGameOver()) return
@@ -195,6 +184,19 @@ function handleClick(event) {
         setTurnDivText("Calculating response...")
         calculateComputerHit()
     }
+}
+
+function calculateComputerHit() {
+    setTimeout(() => {
+        const [y,x] = generateRandomCoordinates(playerArray.length)
+        playerBoard.receiveAttack(y, x)
+        drawBoard(playerArray, "player")
+        if (!checkIfGameOver()) {
+            switchTurn()
+            setTurnDivText(`It's ${turn}'s turn`)
+        }
+    }, 50)
+    //after this we will await for players response
 }
 
 function checkIfGameOver() {

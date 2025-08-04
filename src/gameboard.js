@@ -1,9 +1,16 @@
+const Ship = require("./ship")
+
 class Gameboard {
     constructor(boardSize=10) {
         this.boardSize = boardSize
         this.board = []
         this.allShipsSunk = false
         this.ships = []
+        this.constants = {
+            EMPTY_CELL: "O",
+            HIT_CELL: "H",
+            MISSED_CELL: "M"
+        }
     }
 
     getBoard() {return this.board}
@@ -16,7 +23,7 @@ class Gameboard {
         for (let i = 0; i < this.boardSize; i++) {
             this.board.push([])
             for (let j = 0; j < this.boardSize; j++) {
-                this.board[i].push("O")
+                this.board[i].push(this.constants.EMPTY_CELL)
             }
         }
     }
@@ -32,17 +39,26 @@ class Gameboard {
         }
     }
 
-    receiveAttack(y, x) {
+    validateAttack(y, x) {
+        const value = this.board[y][x]
         if (y >= this.boardSize || x >= this.boardSize || y < 0 || x < 0) return false
-        if (this.board[y][x] === "M" || this.board[y][x] === "H") return false
-        if (this.board[y][x] === "O") {
-            this.board[y][x] = "M"
+        if (value === this.constants.MISSED_CELL || value === this.constants.HIT_CELL) return false
+        return true
+    }
+
+    receiveAttack(y, x) {
+        const wasAttackValid = this.validateAttack(y, x)
+        if (!wasAttackValid) return
+
+        const value = this.board[y][x]
+        if (value === this.constants.EMPTY_CELL) {
+            this.board[y][x] = this.constants.MISSED_CELL
             return true
         } else {
             const shipSymbol = this.board[y][x]
             const shipThatWasHit = this.ships.find(s => s.getSymbol() === shipSymbol)
             shipThatWasHit.hit()
-            this.board[y][x] = "H"
+            this.board[y][x] = this.constants.HIT_CELL
             this.checkifAllShipsSunk()
             return true
         }
@@ -52,50 +68,44 @@ class Gameboard {
         if (horizontal) {
             if (x + length > this.boardSize) return false
             for (let i = 0; i < length; i++) {
-                if (this.board[y][x] !== "O") return false
+                if (this.board[y][x] !== this.constants.EMPTY_CELL) return false
                 x++
             }
             return true
         } 
         if (y + length > this.boardSize) return false
         for (let i = 0; i < length; i++) {
-            if (this.board[y][x] !== "O") return false
+            if (this.board[y][x] !== this.constants.EMPTY_CELL) return false
             y++
         }
         return true
     }
 
     placeShip(ship, y, x, horizontal=true) {
+        const length = ship.getShipLength()
         const doesShipExist = this.ships.some(s => s.name === ship.name)
         if (doesShipExist) return false
+        console.log(y, x);
 
         if (y >= this.boardSize || x >= this.boardSize || y < 0 || x < 0) return false
         if (horizontal) {
-            if (x + ship.getShipLength() > this.boardSize) return false
-            let xCopy = x
-            for (let i = 0; i < ship.getShipLength(); i++) {
-                if (this.board[y][xCopy] !== "O") return false
-                xCopy++
+            if (this.validateShipPlacement(length, y, x, true)) {
+                for (let i = 0; i < length; i++) {
+                    this.board[y][x] = ship.getSymbol()
+                    x++
             }
-            for (let i = 0; i < ship.getShipLength(); i++) {
+            this.ships.push(ship)
+            return true
+            }
+        }
+        if (this.validateShipPlacement(length, y, x, false)) {
+            for (let i = 0; i < length; i++) {
                 this.board[y][x] = ship.getSymbol()
-                x++
+                y++
             }
             this.ships.push(ship)
             return true
         }
-        if (y + ship.getShipLength() > this.boardSize) return false
-        let yCopy = y
-        for (let i = 0; i < ship.getShipLength(); i++) {
-            if (this.board[yCopy][x] !== "O") return false
-            yCopy++
-        }
-        for (let i = 0; i < ship.getShipLength(); i++) {
-            this.board[y][x] = ship.getSymbol()
-            y++
-        }
-        this.ships.push(ship)
-        return true
     }
 
     placeShipsRandomly(ships) {
@@ -104,14 +114,12 @@ class Gameboard {
                 let y = Math.floor(Math.random() * this.boardSize)
                 let x = Math.floor(Math.random() * this.boardSize)
                 let num = Math.floor(Math.random() * 2)
-                let horizontal = num === 0? true : false
+                let horizontal = num === 0 ? true : false
                 if (this.placeShip(ship, y, x, horizontal)) break
             }
         }
     }
 }
-
-
 
 /*function main() {
     const board = new Gameboard()
