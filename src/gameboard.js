@@ -47,18 +47,18 @@ class Gameboard {
     }
 
     //this can be deleted
-    shipStatsHelperFunc() {
+    /*shipStatsHelperFunc() {
         for (const ship of this.ships) {
             console.log(`Pituus: ${ship.getShipLength()} Osumat: ${ship.getHitAmount()} Onko tuhottu: ${ship.getIsShipSunk()}`);
         }
         console.log(" ");
-    }
+    }*/
 
     markHit(y, x) {
         const shipSymbol = this.board[y][x]
         const shipThatWasHit = this.ships.find(s => s.getSymbol() === shipSymbol)
         shipThatWasHit.hit()
-        this.shipStatsHelperFunc()
+        //this.shipStatsHelperFunc()
         this.board[y][x] = this.constants.HIT_CELL
         this.checkifAllShipsSunk()
     }
