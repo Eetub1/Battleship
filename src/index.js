@@ -281,21 +281,36 @@ let wasPreviousAttackHit = false
 let huntMode = true
 let previousHitCoordinates
 
+//in the cell store each hit cell with an object that has info if 
+//the cells top right bottom and left adjacent cells have been struck
+//array should be updated every time there is a hit
+let hitCells = []
+
 const intelligenceLevel = {
     DUMB: "D",
     SMART: "S"
 }
-let computerIntelligence = intelligenceLevel.DUMB
+let computerIntelligence = intelligenceLevel.SMART
 
+function updateHitCells() {
+    hitCells.push({
+        "y": previousHitCoordinates[0],
+        "x": previousHitCoordinates[1]
+    })
+    for (const hit of hitCells) {
+        console.log(hit["y"], hit["x"]);
+    }
+    console.log("TÄällä ollaa");
+}
+
+//this can be made alot smarter TODO
 function calculateSmartAttack() {
     let [y,x] = previousHitCoordinates
-    if (validateCoordinates(y + 1, x, playerArray)) return [y + 1, x]
-    if (validateCoordinates(y, x + 1, playerArray)) return [y, x + 1]
     if (validateCoordinates(y - 1, x, playerArray)) return [y - 1, x]
+    if (validateCoordinates(y, x + 1, playerArray)) return [y, x + 1]
+    if (validateCoordinates(y + 1, x, playerArray)) return [y + 1, x]
     if (validateCoordinates(y, x - 1, playerArray)) return [y, x - 1]
-    else {
-        return generateRandomCoordinates(playerArray.length)
-    }
+    else return generateRandomCoordinates(playerArray.length)
 }
 
 function calculateComputerHit() {
@@ -308,25 +323,29 @@ function calculateComputerHit() {
         }
         playerBoard.receiveAttack(y, x)
 
-        if (playerArray[y][x] === constants.HIT_CELL) {
-            wasPreviousAttackHit = true
-            huntMode = false
-            previousHitCoordinates = [y,x]
-        } else {
-            wasPreviousAttackHit = false
-            huntMode = true
+        //if the attack was a hit on a boat
+        if (computerIntelligence === intelligenceLevel.SMART) {
+            if (playerArray[y][x] === constants.HIT_CELL) {
+                wasPreviousAttackHit = true
+                huntMode = false
+                previousHitCoordinates = [y,x]
+                updateHitCells()
+            } else {
+                wasPreviousAttackHit = false
+                huntMode = true
+            }
         }
         console.log("Oliko tietokoneen viime isku osuma: ",wasPreviousAttackHit);
         console.log("Koordinaatit: ", previousHitCoordinates);
+        console.log("");
 
         drawBoard(playerArray, "player")
         if (!checkIfGameOver()) {
             switchTurn()
             setTurnDivText(`It's ${turn}'s turn`)
         }
-    }, 50/*Math.floor(Math.random() * 500) + 500*/)
-    //after this we will await for players response
-}
+    }, 50)
+}/*Math.floor(Math.random() * 500) + 500*/
 
 function checkIfGameOver() {
     const isOver = computerBoard.getIsGameOver() === true || playerBoard.getIsGameOver() === true
