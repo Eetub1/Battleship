@@ -10,10 +10,14 @@ import './style.css'
 const computerBoardContainer = document.getElementById("computerBoardContainer")
 const playerBoardContainer = document.getElementById("playerBoardContainer")
 const boardNameDivs = document.querySelectorAll(".text")
+
 const rotateBtn = document.getElementById("shipRotationBtn")
 rotateBtn.addEventListener("click", toggleRotation)
 const randomShipsBtn = document.getElementById("randomShipsBtn")
 randomShipsBtn.addEventListener("click", placeRandomShipsForPlayer)
+const confirmBtn = document.getElementById("confirmPlacementBtn")
+confirmBtn.addEventListener("click", startGame)
+
 const turnDiv = document.getElementById("turnDiv")
 const infoText = document.getElementById("infoText")
 const nameDialog = document.getElementById("nameDialog")
@@ -35,6 +39,7 @@ submitBtn.addEventListener("click", (e) => {
     boardNameDivs.forEach(elem => toggleElement(elem))
     toggleElement(rotateBtn)
     toggleElement(randomShipsBtn)
+    toggleElement(confirmBtn)
 
     main()
 })
@@ -43,9 +48,9 @@ submitBtn.addEventListener("click", (e) => {
 //depending on which type of board we want to draw
 function drawBoard(array, type) {
     const size = array.length
-
-    if (type === "computer") computerBoardContainer.textContent = ""
-    else playerBoardContainer.textContent = ""
+    console.log(size);
+    const container = type === "computer" ? computerBoardContainer : playerBoardContainer
+    container.textContent = ""
 
     for (let i = 0; i < size; i++) {
         const rowDiv = document.createElement("div")
@@ -107,8 +112,7 @@ function drawBoard(array, type) {
             }
             rowDiv.appendChild(cellDiv)
         }
-        if (type === "computer") computerBoardContainer.appendChild(rowDiv)
-        else playerBoardContainer.appendChild(rowDiv)
+        container.appendChild(rowDiv)
     }
 }
 
@@ -116,6 +120,7 @@ function startGame() {
     isShipPlacementPhase = false
     toggleElement(rotateBtn)
     toggleElement(randomShipsBtn)
+    toggleElement(confirmBtn)
     setDivText(infoText, "Game started!")
     drawBoard(playerArray, "player")
     setDivText(turnDiv, `It's ${turn}'s turn`)
@@ -203,25 +208,13 @@ function switchTurn () {
     turn = turn === playerName? computerName : playerName
 }
 
-//for now after you press the button, the game starts automatically
-//in the future make it so that you can try many randomized placements
-//before confirming the choice
 function placeRandomShipsForPlayer() {
-    
-    //mitä jos pelaaja on jo manuaalisesti laittanut pari laivaa ja painetaan nappia
-    console.log("moi");
-    //alustetaan pelaajan gameboard objekti ja sitten kutsutaan
-    //placeshipsrandomly metodia ja piirretään lauta uudestaan
-    //niin että ei voi enää laittaa manuaalisesti
-
-    //we create a new player object and reset the board if any ships were 
-    //placed manually
     player = new Player("")
     playerBoard = player.getBoardObject()
     playerArray = playerBoard.getBoard()
     playerBoard.placeShipsRandomly(playerShips)
-    drawBoard(playerBoard, "player")
-    startGame()
+    drawBoard(playerArray, "player")
+    //startGame()
 
     //esiin voisi tulla nappi jota painamalla voidaan vahvistaa valinnat
     //voisi olla myös nappi jolla voisi sittenkin laittaa manuaalisesti
@@ -252,6 +245,7 @@ function playAgain() {
     toggleElement(rotateBtn)
     toggleElement(playAgainBtn)
     toggleElement(randomShipsBtn)
+    toggleElement(confirmBtn)
     setDivText(turnDiv, "")
     playerBoard = new GameBoard()
     playerBoard.setGameBoard()

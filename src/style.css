@@ -6,10 +6,6 @@ body {
   padding: 0;
 }
 
-/*div {
-  border: 1px solid black;
-}*/
-
 button {
   border: none;
   padding: 7px;
@@ -93,16 +89,19 @@ button:hover {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin-top: 2rem;
 }
 
 #turnDiv {
   font-size: 2rem;
 }
 
-#shipRotationBtnContainer, #randomShipsBtnContainer {
+#buttonsContainer {
   display: flex;
   justify-content: center;
+}
+
+#buttonsContainer > button {
+  margin-left: 0.5rem;
 }
 
 .text {
@@ -121,8 +120,6 @@ button:hover {
 .hidden {
   display: none;
 }
-
-
 
 .hide {
   visibility: hidden;
