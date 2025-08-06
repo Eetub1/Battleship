@@ -1,17 +1,20 @@
 const Player = require("./player.js")
 const Ship = require("./ship.js")
 const GameBoard = require("./gameboard.js")
+const {setDivText, togglePlayAgainBtn, setDivHTML} = require("./handleUI.js")
 import './style.css'
 
 //code for DOM manipulation
 //=================================================================================
 
-let computerBoardContainer
-let playerBoardContainer
+const computerBoardContainer = document.getElementById("computerBoardContainer")
+const playerBoardContainer = document.getElementById("playerBoardContainer")
+
+const rotateBtn = document.getElementById("shipRotationBtn")
+rotateBtn.addEventListener("click", toggleRotation)
 
 const turnDiv = document.getElementById("turnDiv")
 const infoText = document.getElementById("infoText")
-const mainDiv = document.getElementById("main")
 const nameDialog = document.getElementById("nameDialog")
 const playAgainBtn = document.getElementById("playAgainBtn")
 playAgainBtn.addEventListener("click", playAgain)
@@ -27,22 +30,6 @@ submitBtn.addEventListener("click", (e) => {
     nameDialog.close()
     main()
 })
-
-function setTurnDivText(text) {
-    turnDiv.textContent = text
-}
-
-function setInfoText(text) {
-    infoText.textContent = text
-}
-
-function togglePlayAgainBtn() {
-    playAgainBtn.classList.toggle("hidden")
-}
-
-function setMainDivHTML(html) {
-    mainDiv.innerHTML = html
-}
 
 //type is either "player", "computer" or "placement"
 //depending on which type of board we want to draw
@@ -104,30 +91,10 @@ function drawBoard(array, type) {
 }
 
 function startGame() {
-    setMainDivHTML(`
-        <div>
-            <div class="text">
-                <p>Your board</p>
-            </div>
-            <div id="playerBoardContainer"></div>
-        </div>
-
-        <div>
-            <div class="text">
-                <p>Computer board</p>
-            </div>
-            <div id="computerBoardContainer"></div>
-        </div>
-    `)
-
-    setInfoText("Game started!")
-    playerBoardContainer = document.getElementById("playerBoardContainer")
-    computerBoardContainer = document.getElementById("computerBoardContainer")
-
-    setComputer()
+    setDivText(infoText, "Game started!")
     drawBoard(playerArray, "player")
     drawBoard(computerArray, "computer")
-    setTurnDivText(`It's ${turn}'s turn`)
+    setDivText(turnDiv, `It's ${turn}'s turn`)
 }
 
 function setComputer() {
@@ -139,23 +106,7 @@ function setComputer() {
     computerBoard.placeShipsRandomly(computerShips)
 }
 
-function setMainDiv() {
-    setMainDivHTML(`
-        <div>
-            <div class="text">
-                <p></p>
-            </div>
-            <div id="playerBoardContainer"></div>
-            <div id="shipRotationBtnContainer">
-                <button id="shipRotationBtn">Change rotation</button>
-            </div>
-        </div>
-    `)
-    playerBoardContainer = document.getElementById("playerBoardContainer")
-    const rotateBtn = document.getElementById("shipRotationBtn")
-    rotateBtn.addEventListener("click", toggleRotation)
-}
-
+//tää handleUI
 function clearHighlights() {
     const cells = document.querySelectorAll(".placeShipCellDiv")
     cells.forEach(cell => {
@@ -163,6 +114,7 @@ function clearHighlights() {
     })
 }
 
+//handleUI
 function showIsPlacementValid(event) {
     clearHighlights()
 
@@ -228,13 +180,15 @@ function setShips() {
     currentShip = playerShips[0]
     isCurrentSquareValidForShip = false
     currentShipArrayIndex = 0
-    setInfoText(`Place your ${currentShip.getShipName()}`)
+    setDivText(infoText, `Place your ${currentShip.getShipName()}`)
     drawBoard(playerArray, "placement")
+    setComputer()
+    drawBoard(computerArray, "computer")
 }
 
 function playAgain() {
     togglePlayAgainBtn()
-    setTurnDivText("")
+    setDivText(turnDiv, "")
     setMainDiv()
     playerBoard = new GameBoard()
     playerBoard.setGameBoard()
@@ -273,7 +227,7 @@ function handleClick(event) {
         drawBoard(computerArray, "computer")
         if (checkIfGameOver()) return
         switchTurn()
-        setTurnDivText("Calculating response...")
+        setDivText(turnDiv, "Calculating response...")
         calculateComputerHit()
     }
 }
@@ -342,7 +296,7 @@ function calculateComputerHit() {
         drawBoard(playerArray, "player")
         if (!checkIfGameOver()) {
             switchTurn()
-            setTurnDivText(`It's ${turn}'s turn`)
+            setDivText(turnDiv, `It's ${turn}'s turn`)
         }
     }, 50)
 }/*Math.floor(Math.random() * 500) + 500*/
@@ -350,8 +304,8 @@ function calculateComputerHit() {
 function checkIfGameOver() {
     const isOver = computerBoard.getIsGameOver() === true || playerBoard.getIsGameOver() === true
     if (isOver) {
-        if (turn === playerName) setTurnDivText("Congratulations! You won the game!")
-        else setTurnDivText("Game over! Computer won!")
+        if (turn === playerName) setDivText(turnDiv, "Congratulations! You won the game!")
+        else setDivText(turnDiv, "Game over! Computer won!")
         togglePlayAgainBtn()
     }
     return isOver
@@ -368,7 +322,7 @@ function placePlayerShip(event) {
         if (currentShipArrayIndex + 1 < playerShips.length) {
             currentShipArrayIndex++
             currentShip = playerShips[currentShipArrayIndex]
-            setInfoText(`Place your ${currentShip.getShipName()}`)
+            setDivText(infoText, `Place your ${currentShip.getShipName()}`)
             drawBoard(playerArray, "placement")
         } else {
             startGame()
@@ -377,8 +331,6 @@ function placePlayerShip(event) {
 }
 
 function main() {
-    setMainDiv()
-
     player = new Player("Eetu")
     playerBoard = player.getBoardObject()
     playerArray = playerBoard.getBoard()
