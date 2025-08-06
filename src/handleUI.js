@@ -1,9 +1,9 @@
 function setDivText(div, text) {
     div.textContent = text
-} 
-
-function togglePlayAgainBtn() {
-    playAgainBtn.classList.toggle("hidden")
+}
+ 
+function toggleElement(elem) {
+    elem.classList.toggle("hidden")
 }
 
 function setDivHTML(div, html) {
@@ -12,6 +12,6 @@ function setDivHTML(div, html) {
 
 module.exports = {
     setDivText,
-    togglePlayAgainBtn,
+    toggleElement,
     setDivHTML
 }

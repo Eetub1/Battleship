@@ -1,7 +1,7 @@
 const Player = require("./player.js")
 const Ship = require("./ship.js")
 const GameBoard = require("./gameboard.js")
-const {setDivText, togglePlayAgainBtn, setDivHTML} = require("./handleUI.js")
+const {setDivText, toggleElement, setDivHTML} = require("./handleUI.js")
 import './style.css'
 
 //code for DOM manipulation
@@ -9,10 +9,11 @@ import './style.css'
 
 const computerBoardContainer = document.getElementById("computerBoardContainer")
 const playerBoardContainer = document.getElementById("playerBoardContainer")
-
+const boardNameDivs = document.querySelectorAll(".text")
 const rotateBtn = document.getElementById("shipRotationBtn")
 rotateBtn.addEventListener("click", toggleRotation)
-
+const randomShipsBtn = document.getElementById("randomShipsBtn")
+randomShipsBtn.addEventListener("click", placeRandomShipsForPlayer)
 const turnDiv = document.getElementById("turnDiv")
 const infoText = document.getElementById("infoText")
 const nameDialog = document.getElementById("nameDialog")
@@ -28,6 +29,13 @@ submitBtn.addEventListener("click", (e) => {
     playerName = name
     turn = playerName
     nameDialog.close()
+    nameDialog.classList.add("hide")
+
+    //show boardnames
+    boardNameDivs.forEach(elem => toggleElement(elem))
+    toggleElement(rotateBtn)
+    toggleElement(randomShipsBtn)
+
     main()
 })
 
@@ -69,6 +77,20 @@ function drawBoard(array, type) {
                     }
                 } else {
                     switch(value) {
+                        case constants.MISSED_CELL:
+                            cellDiv.className = "cellDiv red"
+                            break
+                        case constants.HIT_CELL:
+                            cellDiv.className = "cellDiv green"
+                            break
+                        case constants.EMPTY_CELL:
+                            cellDiv.className = "cellDiv"
+                            break
+                        default:
+                            cellDiv.className = "cellDiv blue"
+                            break
+                    }
+                    /*switch(value) {
                         case constants.HIT_CELL:
                             cellDiv.className = "cellDiv green"
                             break
@@ -78,7 +100,7 @@ function drawBoard(array, type) {
                         default:
                             cellDiv.className = "cellDiv"
                             break
-                    }
+                    }*/
                 }
                 cellDiv.setAttribute("id", `${i}-${j}-${type === "player" ? playerName : computerName}`)
                 cellDiv.addEventListener("click", (event) => handleClick(event))
@@ -91,9 +113,11 @@ function drawBoard(array, type) {
 }
 
 function startGame() {
+    isShipPlacementPhase = false
+    toggleElement(rotateBtn)
+    toggleElement(randomShipsBtn)
     setDivText(infoText, "Game started!")
     drawBoard(playerArray, "player")
-    drawBoard(computerArray, "computer")
     setDivText(turnDiv, `It's ${turn}'s turn`)
 }
 
@@ -147,23 +171,60 @@ let player
 let playerName
 let playerBoard
 let playerArray
+let playerShips
 
 let computer
 let computerName
 let computerBoard
 let computerArray
-
 let computerShips
-let playerShips
+
 let turn
 
 let horizontal = false
 let currentShip
 let isCurrentSquareValidForShip = false
 let currentShipArrayIndex = 0
+let isShipPlacementPhase = true
+
+let wasPreviousAttackHit = false
+let huntMode = true
+let previousHitCoordinates
+
+const hitCells = []
+
+const intelligenceLevel = {
+    DUMB: "D",
+    SMART: "S"
+}
+let computerIntelligence = intelligenceLevel.SMART
 
 function switchTurn () {
     turn = turn === playerName? computerName : playerName
+}
+
+//for now after you press the button, the game starts automatically
+//in the future make it so that you can try many randomized placements
+//before confirming the choice
+function placeRandomShipsForPlayer() {
+    
+    //mitä jos pelaaja on jo manuaalisesti laittanut pari laivaa ja painetaan nappia
+    console.log("moi");
+    //alustetaan pelaajan gameboard objekti ja sitten kutsutaan
+    //placeshipsrandomly metodia ja piirretään lauta uudestaan
+    //niin että ei voi enää laittaa manuaalisesti
+
+    //we create a new player object and reset the board if any ships were 
+    //placed manually
+    player = new Player("")
+    playerBoard = player.getBoardObject()
+    playerArray = playerBoard.getBoard()
+    playerBoard.placeShipsRandomly(playerShips)
+    drawBoard(playerBoard, "player")
+    startGame()
+
+    //esiin voisi tulla nappi jota painamalla voidaan vahvistaa valinnat
+    //voisi olla myös nappi jolla voisi sittenkin laittaa manuaalisesti
 }
 
 function createShips() {
@@ -187,9 +248,11 @@ function setShips() {
 }
 
 function playAgain() {
-    togglePlayAgainBtn()
+    isShipPlacementPhase = true
+    toggleElement(rotateBtn)
+    toggleElement(playAgainBtn)
+    toggleElement(randomShipsBtn)
     setDivText(turnDiv, "")
-    setMainDiv()
     playerBoard = new GameBoard()
     playerBoard.setGameBoard()
     playerArray = playerBoard.getBoard()
@@ -216,6 +279,7 @@ function validateCoordinates(y, x, array) {
 }
 
 function handleClick(event) {
+    if (isShipPlacementPhase) return
     if (turn !== playerName) return
     if (!checkIfGameOver()) {
         const clickInfo = event.target.id.split("-")
@@ -231,20 +295,6 @@ function handleClick(event) {
         calculateComputerHit()
     }
 }
-let wasPreviousAttackHit = false
-let huntMode = true
-let previousHitCoordinates
-
-//in the cell store each hit cell with an object that has info if 
-//the cells top right bottom and left adjacent cells have been struck
-//array should be updated every time there is a hit
-let hitCells = []
-
-const intelligenceLevel = {
-    DUMB: "D",
-    SMART: "S"
-}
-let computerIntelligence = intelligenceLevel.SMART
 
 function updateHitCells() {
     hitCells.push({
@@ -258,6 +308,7 @@ function updateHitCells() {
 }
 
 //this can be made alot smarter TODO
+//also doesnt work properly
 function calculateSmartAttack() {
     let [y,x] = previousHitCoordinates
     if (validateCoordinates(y - 1, x, playerArray)) return [y - 1, x]
@@ -306,7 +357,7 @@ function checkIfGameOver() {
     if (isOver) {
         if (turn === playerName) setDivText(turnDiv, "Congratulations! You won the game!")
         else setDivText(turnDiv, "Game over! Computer won!")
-        togglePlayAgainBtn()
+        toggleElement(playAgainBtn)
     }
     return isOver
 }
@@ -331,7 +382,7 @@ function placePlayerShip(event) {
 }
 
 function main() {
-    player = new Player("Eetu")
+    player = new Player("")
     playerBoard = player.getBoardObject()
     playerArray = playerBoard.getBoard()
     setShips()
