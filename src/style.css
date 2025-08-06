@@ -41,6 +41,13 @@ button:hover {
   text-align: center;
 }
 
+#difficultyInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
 #main {
   display: flex;
   justify-content: space-evenly;
@@ -89,6 +96,7 @@ button:hover {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  margin-top: 2rem;
 }
 
 #turnDiv {

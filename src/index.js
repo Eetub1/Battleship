@@ -17,6 +17,12 @@ const randomShipsBtn = document.getElementById("randomShipsBtn")
 randomShipsBtn.addEventListener("click", placeRandomShipsForPlayer)
 const confirmBtn = document.getElementById("confirmPlacementBtn")
 confirmBtn.addEventListener("click", startGame)
+const buttonsCont = document.getElementById("buttonsContainer")
+
+const difficultyBtn = document.getElementById("difficultyBtn")
+difficultyBtn.addEventListener("click", toggleDifficulty)
+
+const difficultyLevelText = document.getElementById("difficultyLevel")
 
 const turnDiv = document.getElementById("turnDiv")
 const infoText = document.getElementById("infoText")
@@ -37,9 +43,10 @@ submitBtn.addEventListener("click", (e) => {
 
     //show boardnames
     boardNameDivs.forEach(elem => toggleElement(elem))
-    toggleElement(rotateBtn)
+    /*toggleElement(rotateBtn)
     toggleElement(randomShipsBtn)
-    toggleElement(confirmBtn)
+    toggleElement(confirmBtn)*/
+    toggleElement(buttonsCont)
 
     main()
 })
@@ -48,7 +55,6 @@ submitBtn.addEventListener("click", (e) => {
 //depending on which type of board we want to draw
 function drawBoard(array, type) {
     const size = array.length
-    console.log(size);
     const container = type === "computer" ? computerBoardContainer : playerBoardContainer
     container.textContent = ""
 
@@ -118,10 +124,16 @@ function drawBoard(array, type) {
 
 function startGame() {
     isShipPlacementPhase = false
-    toggleElement(rotateBtn)
+
+    /*toggleElement(rotateBtn)
     toggleElement(randomShipsBtn)
-    toggleElement(confirmBtn)
+    toggleElement(confirmBtn)*/
+    toggleElement(buttonsCont)
+
+    toggleElement(difficultyBtn)
+
     setDivText(infoText, "Game started!")
+    setDivText(difficultyLevelText, `Difficulty level: ${computerIntelligence}`)
     drawBoard(playerArray, "player")
     setDivText(turnDiv, `It's ${turn}'s turn`)
 }
@@ -135,7 +147,7 @@ function setComputer() {
     computerBoard.placeShipsRandomly(computerShips)
 }
 
-//tää handleUI
+//handleUI
 function clearHighlights() {
     const cells = document.querySelectorAll(".placeShipCellDiv")
     cells.forEach(cell => {
@@ -199,13 +211,18 @@ let previousHitCoordinates
 const hitCells = []
 
 const intelligenceLevel = {
-    DUMB: "D",
-    SMART: "S"
+    DUMB: "Dumb",
+    SMART: "Smart"
 }
 let computerIntelligence = intelligenceLevel.SMART
 
 function switchTurn () {
     turn = turn === playerName? computerName : playerName
+}
+
+function toggleDifficulty() {
+    computerIntelligence = computerIntelligence === intelligenceLevel.SMART ? intelligenceLevel.DUMB : intelligenceLevel.SMART
+    setDivText(difficultyLevelText, `Difficulty level: ${computerIntelligence}`)
 }
 
 function placeRandomShipsForPlayer() {
@@ -242,10 +259,12 @@ function setShips() {
 
 function playAgain() {
     isShipPlacementPhase = true
-    toggleElement(rotateBtn)
     toggleElement(playAgainBtn)
+    /*toggleElement(rotateBtn)
     toggleElement(randomShipsBtn)
-    toggleElement(confirmBtn)
+    toggleElement(confirmBtn)*/
+    toggleElement(buttonsCont)
+
     setDivText(turnDiv, "")
     playerBoard = new GameBoard()
     playerBoard.setGameBoard()
@@ -298,7 +317,6 @@ function updateHitCells() {
     for (const hit of hitCells) {
         console.log(hit["y"], hit["x"]);
     }
-    console.log("TÄällä ollaa");
 }
 
 //this can be made alot smarter TODO
