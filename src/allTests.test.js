@@ -67,3 +67,5 @@ describe("Testing the Gameboard class", () => {
         })
     })
 })
+
+//vittu mä mitään testejä oo kirjottamassa saatana!

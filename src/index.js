@@ -1,7 +1,7 @@
 const Player = require("./player.js")
 const Ship = require("./ship.js")
 const GameBoard = require("./gameboard.js")
-const {setDivText, toggleElement, setDivHTML} = require("./handleUI.js")
+const {setElemText, toggleElementVisibility, setDivHTML} = require("./handleUI.js")
 import './style.css'
 
 //code for DOM manipulation
@@ -24,6 +24,8 @@ difficultyBtn.addEventListener("click", toggleDifficulty)
 
 const difficultyLevelText = document.getElementById("difficultyLevel")
 
+const playerBoardNameText = document.getElementById("playerBoardNameText") 
+
 const turnDiv = document.getElementById("turnDiv")
 const infoText = document.getElementById("infoText")
 const nameDialog = document.getElementById("nameDialog")
@@ -42,12 +44,13 @@ submitBtn.addEventListener("click", (e) => {
     nameDialog.classList.add("hide")
 
     //show boardnames
-    boardNameDivs.forEach(elem => toggleElement(elem))
-    toggleElement(rotateBtn)
-    toggleElement(randomShipsBtn)
-    toggleElement(confirmBtn)
+    boardNameDivs.forEach(elem => toggleElementVisibility(elem))
+    setElemText(playerBoardNameText, `${playerName}'s board`)
+    toggleElementVisibility(rotateBtn)
+    toggleElementVisibility(randomShipsBtn)
+    toggleElementVisibility(confirmBtn)
 
-    main()
+    initializeGame()
 })
 
 //type is either "player", "computer" or "placement"
@@ -121,31 +124,6 @@ function drawBoard(array, type) {
     }
 }
 
-function startGame() {
-    isShipPlacementPhase = false
-
-    toggleElement(rotateBtn)
-    toggleElement(randomShipsBtn)
-    toggleElement(confirmBtn)
-
-    toggleElement(difficultyBtn)
-    toggleElement(difficultyLevelText)
-
-    setDivText(infoText, "Game started!")
-    setDivText(difficultyLevelText, `Difficulty level: ${computerIntelligence}`)
-    drawBoard(playerArray, "player")
-    setDivText(turnDiv, `It's ${turn}'s turn`)
-}
-
-function setComputer() {
-    computer = new Player("Computer")
-    computerName = computer.getName()
-    computerBoard = computer.getBoardObject()
-    computerArray = computerBoard.getBoard()
-    computerShips = createShips()
-    computerBoard.placeShipsRandomly(computerShips)
-}
-
 //handleUI
 function clearHighlights() {
     const cells = document.querySelectorAll(".placeShipCellDiv")
@@ -217,23 +195,16 @@ let computerIntelligence = intelligenceLevel.SMART
 
 function switchTurn () {
     turn = turn === playerName? computerName : playerName
+    setElemText(turnDiv, `It's ${turn}'s turn`)
 }
 
 function toggleDifficulty() {
     computerIntelligence = computerIntelligence === intelligenceLevel.SMART ? intelligenceLevel.DUMB : intelligenceLevel.SMART
-    setDivText(difficultyLevelText, `Difficulty level: ${computerIntelligence}`)
+    setElemText(difficultyLevelText, `Difficulty level: ${computerIntelligence}`)
 }
 
-function placeRandomShipsForPlayer() {
-    player = new Player("")
-    playerBoard = player.getBoardObject()
-    playerArray = playerBoard.getBoard()
-    playerBoard.placeShipsRandomly(playerShips)
-    drawBoard(playerArray, "player")
-    //startGame()
-
-    //esiin voisi tulla nappi jota painamalla voidaan vahvistaa valinnat
-    //voisi olla myös nappi jolla voisi sittenkin laittaa manuaalisesti
+function toggleRotation() {
+    horizontal = horizontal? false : true
 }
 
 function createShips() {
@@ -245,69 +216,80 @@ function createShips() {
         new Ship(2, "Destroyer")]
 }
 
-function setShips() {
+function setPlayerAndComputerShips() {
     playerShips = createShips()
     currentShip = playerShips[0]
     isCurrentSquareValidForShip = false
     currentShipArrayIndex = 0
-    setDivText(infoText, `Place your ${currentShip.getShipName()}`)
+    setElemText(infoText, `Place your ${currentShip.getShipName()}`)
     drawBoard(playerArray, "placement")
     setComputer()
     drawBoard(computerArray, "computer")
 }
 
+function placeRandomShipsForPlayer() {
+    player = new Player("")
+    playerBoard = player.getBoardObject()
+    playerArray = playerBoard.getBoard()
+    playerBoard.placeShipsRandomly(playerShips)
+    drawBoard(playerArray, "player")
+}
+
+function placePlayerShip(event) {
+    if (isCurrentSquareValidForShip) {
+        const [y,x] = event.target.id.split("-").map(str => parseInt(str))
+        playerBoard.placeShip(currentShip, y, x, horizontal)
+        if (currentShipArrayIndex + 1 < playerShips.length) {
+            currentShipArrayIndex++
+            currentShip = playerShips[currentShipArrayIndex]
+            setElemText(infoText, `Place your ${currentShip.getShipName()}`)
+            drawBoard(playerArray, "placement")
+        } else {
+            startGame()
+        }
+    }
+}
+
+function startGame() {
+    isShipPlacementPhase = false
+
+    toggleElementVisibility(rotateBtn)
+    toggleElementVisibility(randomShipsBtn)
+    toggleElementVisibility(confirmBtn)
+
+    toggleElementVisibility(difficultyBtn)
+    toggleElementVisibility(difficultyLevelText)
+
+    setElemText(infoText, "Game started!")
+    setElemText(difficultyLevelText, `Difficulty level: ${computerIntelligence}`)
+    drawBoard(playerArray, "player")
+    setElemText(turnDiv, `It's ${turn}'s turn`)
+}
+
+function setComputer() {
+    computer = new Player("Computer")
+    computerName = computer.getName()
+    computerBoard = computer.getBoardObject()
+    computerArray = computerBoard.getBoard()
+    computerShips = createShips()
+    computerBoard.placeShipsRandomly(computerShips)
+}
+
 function playAgain() {
     isShipPlacementPhase = true
-    toggleElement(playAgainBtn)
-    toggleElement(rotateBtn)
-    toggleElement(randomShipsBtn)
-    toggleElement(confirmBtn)
+    toggleElementVisibility(playAgainBtn)
+    toggleElementVisibility(rotateBtn)
+    toggleElementVisibility(randomShipsBtn)
+    toggleElementVisibility(confirmBtn)
     
-    toggleElement(difficultyBtn)
-    toggleElement(difficultyLevelText)
+    toggleElementVisibility(difficultyBtn)
+    toggleElementVisibility(difficultyLevelText)
 
-    setDivText(turnDiv, "")
+    setElemText(turnDiv, "")
     playerBoard = new GameBoard()
     playerBoard.setGameBoard()
     playerArray = playerBoard.getBoard()
-    setShips()
-}
-
-//helper function
-function generateRandomCoordinates(range) {
-    let y,x
-    let areCoordinatesValid = false
-    while (!areCoordinatesValid) {
-        y = Math.floor(Math.random() * range)
-        x = Math.floor(Math.random() * range)
-        areCoordinatesValid = validateCoordinates(y, x, playerArray)
-    }
-    return [y,x]
-}
-
-//helper function only needs constant object as parameter
-function validateCoordinates(y, x, array) {
-    if (y >= array.length || x >= array.length || y < 0 || x < 0) return false
-    if (array[y][x] === constants.MISSED_CELL || array[y][x] === constants.HIT_CELL) return false
-    return true
-}
-
-function handleClick(event) {
-    if (isShipPlacementPhase) return
-    if (turn !== playerName) return
-    if (!checkIfGameOver()) {
-        const clickInfo = event.target.id.split("-")
-        const whoseBoardWasClicked = clickInfo[2]
-        if (whoseBoardWasClicked === playerName) return
-        const y = parseInt(clickInfo[0])
-        const x = parseInt(clickInfo[1])
-        if (!computerBoard.receiveAttack(y, x)) return
-        drawBoard(computerArray, "computer")
-        if (checkIfGameOver()) return
-        switchTurn()
-        setDivText(turnDiv, "Calculating response...")
-        calculateComputerHit()
-    }
+    setPlayerAndComputerShips()
 }
 
 function updateHitCells() {
@@ -316,7 +298,7 @@ function updateHitCells() {
         "x": previousHitCoordinates[1]
     })
     for (const hit of hitCells) {
-        console.log(hit["y"], hit["x"]);
+        //console.log(hit["y"], hit["x"]);
     }
 }
 
@@ -331,7 +313,26 @@ function calculateSmartAttack() {
     else return generateRandomCoordinates(playerArray.length)
 }
 
-function calculateComputerHit() {
+function handleClick(event) {
+    if (isShipPlacementPhase) return
+    if (turn !== playerName) return
+    if (!checkIfGameOver()) {
+        const clickInfo = event.target.id.split("-")
+        const whoseBoardWasClicked = clickInfo[2]
+        if (whoseBoardWasClicked === playerName) return
+
+        const y = parseInt(clickInfo[0])
+        const x = parseInt(clickInfo[1])
+        if (!computerBoard.receiveAttack(y, x)) return
+
+        drawBoard(computerArray, "computer")
+        if (checkIfGameOver()) return
+        switchTurn()
+        executeComputerTurn()
+    }
+}
+
+function executeComputerTurn() {
     setTimeout(() => {
         let y,x
         if (computerIntelligence === intelligenceLevel.DUMB || huntMode === true) {
@@ -353,52 +354,50 @@ function calculateComputerHit() {
                 huntMode = true
             }
         }
-        console.log("Oliko tietokoneen viime isku osuma: ",wasPreviousAttackHit);
-        console.log("Koordinaatit: ", previousHitCoordinates);
-        console.log("");
+        //console.log("Oliko tietokoneen viime isku osuma: ",wasPreviousAttackHit);
+        //console.log("Koordinaatit: ", previousHitCoordinates);
+        //console.log("");
 
         drawBoard(playerArray, "player")
         if (!checkIfGameOver()) {
             switchTurn()
-            setDivText(turnDiv, `It's ${turn}'s turn`)
         }
     }, 50)
 }/*Math.floor(Math.random() * 500) + 500*/
 
+function generateRandomCoordinates(range) {
+    let y,x
+    let areCoordinatesValid = false
+    while (!areCoordinatesValid) {
+        y = Math.floor(Math.random() * range)
+        x = Math.floor(Math.random() * range)
+        areCoordinatesValid = validateCoordinates(y, x, playerArray)
+    }
+    return [y,x]
+}
+
+//helper function only needs constant object as parameter
+function validateCoordinates(y, x, array) {
+    if (y >= array.length || x >= array.length || y < 0 || x < 0) return false
+    if (array[y][x] === constants.MISSED_CELL || array[y][x] === constants.HIT_CELL) return false
+    return true
+}
+
 function checkIfGameOver() {
     const isOver = computerBoard.getIsGameOver() === true || playerBoard.getIsGameOver() === true
     if (isOver) {
-        if (turn === playerName) setDivText(turnDiv, "Congratulations! You won the game!")
-        else setDivText(turnDiv, "Game over! Computer won!")
-        toggleElement(playAgainBtn)
+        if (turn === playerName) setElemText(turnDiv, "Congratulations! You won the game!")
+        else setElemText(turnDiv, "Game over! Computer won!")
+        toggleElementVisibility(playAgainBtn)
     }
     return isOver
 }
 
-function toggleRotation() {
-    horizontal = horizontal? false : true
-}
-
-function placePlayerShip(event) {
-    if (isCurrentSquareValidForShip) {
-        const [y,x] = event.target.id.split("-").map(str => parseInt(str))
-        playerBoard.placeShip(currentShip, y, x, horizontal)
-        if (currentShipArrayIndex + 1 < playerShips.length) {
-            currentShipArrayIndex++
-            currentShip = playerShips[currentShipArrayIndex]
-            setDivText(infoText, `Place your ${currentShip.getShipName()}`)
-            drawBoard(playerArray, "placement")
-        } else {
-            startGame()
-        }
-    }
-}
-
-function main() {
+function initializeGame() {
     player = new Player("")
     playerBoard = player.getBoardObject()
     playerArray = playerBoard.getBoard()
-    setShips()
+    setPlayerAndComputerShips()
 }
 
 //the whole program starts from the opening of this modal

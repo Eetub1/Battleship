@@ -1,8 +1,8 @@
-function setDivText(div, text) {
-    div.textContent = text
+function setElemText(elem, text) {
+    elem.textContent = text
 }
  
-function toggleElement(elem) {
+function toggleElementVisibility(elem) {
     elem.classList.toggle("hidden")
 }
 
@@ -11,7 +11,7 @@ function setDivHTML(div, html) {
 }
 
 module.exports = {
-    setDivText,
-    toggleElement,
+    setElemText,
+    toggleElementVisibility,
     setDivHTML
 }
