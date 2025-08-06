@@ -43,10 +43,9 @@ submitBtn.addEventListener("click", (e) => {
 
     //show boardnames
     boardNameDivs.forEach(elem => toggleElement(elem))
-    /*toggleElement(rotateBtn)
+    toggleElement(rotateBtn)
     toggleElement(randomShipsBtn)
-    toggleElement(confirmBtn)*/
-    toggleElement(buttonsCont)
+    toggleElement(confirmBtn)
 
     main()
 })
@@ -125,12 +124,12 @@ function drawBoard(array, type) {
 function startGame() {
     isShipPlacementPhase = false
 
-    /*toggleElement(rotateBtn)
+    toggleElement(rotateBtn)
     toggleElement(randomShipsBtn)
-    toggleElement(confirmBtn)*/
-    toggleElement(buttonsCont)
+    toggleElement(confirmBtn)
 
     toggleElement(difficultyBtn)
+    toggleElement(difficultyLevelText)
 
     setDivText(infoText, "Game started!")
     setDivText(difficultyLevelText, `Difficulty level: ${computerIntelligence}`)
@@ -260,10 +259,12 @@ function setShips() {
 function playAgain() {
     isShipPlacementPhase = true
     toggleElement(playAgainBtn)
-    /*toggleElement(rotateBtn)
+    toggleElement(rotateBtn)
     toggleElement(randomShipsBtn)
-    toggleElement(confirmBtn)*/
-    toggleElement(buttonsCont)
+    toggleElement(confirmBtn)
+    
+    toggleElement(difficultyBtn)
+    toggleElement(difficultyLevelText)
 
     setDivText(turnDiv, "")
     playerBoard = new GameBoard()
