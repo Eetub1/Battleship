@@ -44,7 +44,6 @@ class Gameboard {
         if (y >= this.boardSize || x >= this.boardSize || y < 0 || x < 0) return false
         if (value === this.constants.MISSED_CELL || value === this.constants.HIT_CELL) return false
         return true
-
     }
 
     //this can be deleted
@@ -72,9 +71,10 @@ class Gameboard {
     receiveAttack(y, x) {
         const hitData = {
             wasAttackValid: null,
-            wasHit: null,
+            //wasHit: null,
             shipName: null,
-            wasShipSunk: null
+            wasShipSunk: null,
+            ship: null
         }
 
         const wasAttackValid = this.validateAttack(y, x)
@@ -87,11 +87,12 @@ class Gameboard {
 
         if (value === this.constants.EMPTY_CELL) {
             this.board[y][x] = this.constants.MISSED_CELL
-            hitData.wasHit = false
+            //hitData.wasHit = false
         } else {
             const ship = this.findShipName(value)
+            hitData.ship = ship
             this.markHit(y, x)
-            hitData.wasHit = true
+            //hitData.wasHit = true
             hitData.shipName = ship.getShipName()
             if (ship.getIsShipSunk()) hitData.wasShipSunk = true
         }

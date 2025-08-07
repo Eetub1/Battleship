@@ -34,7 +34,7 @@ class Ship {
 
     setIsSunk() {
         if (this.hitAmount === this.shipLength) {
-            console.log(`${this.name} has been sunk`);
+            //console.log(`${this.name} has been sunk`);
             this.isShipSunk = true
         }
     }

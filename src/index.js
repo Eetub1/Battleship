@@ -195,7 +195,8 @@ let computerIntelligence = intelligenceLevel.SMART
 
 function switchTurn () {
     turn = turn === playerName? computerName : playerName
-    setElemText(turnDiv, `It's ${turn}'s turn`)
+    if (turn === playerName) setElemText(turnDiv, `It's ${turn}'s turn`)
+        else setElemText(turnDiv, "Calculating response...")
 }
 
 function toggleDifficulty() {
@@ -292,27 +293,6 @@ function playAgain() {
     setPlayerAndComputerShips()
 }
 
-function updateHitCells() {
-    hitCells.push({
-        "y": previousHitCoordinates[0],
-        "x": previousHitCoordinates[1]
-    })
-    for (const hit of hitCells) {
-        //console.log(hit["y"], hit["x"]);
-    }
-}
-
-//this can be made alot smarter TODO
-//also doesnt work properly
-function calculateSmartAttack() {
-    let [y,x] = previousHitCoordinates
-    if (validateCoordinates(y - 1, x, playerArray)) return [y - 1, x]
-    if (validateCoordinates(y, x + 1, playerArray)) return [y, x + 1]
-    if (validateCoordinates(y + 1, x, playerArray)) return [y + 1, x]
-    if (validateCoordinates(y, x - 1, playerArray)) return [y, x - 1]
-    else return generateRandomCoordinates(playerArray.length)
-}
-
 function handleClick(event) {
     if (isShipPlacementPhase) return
     if (turn !== playerName) return
@@ -339,6 +319,8 @@ function handleClick(event) {
 function executeComputerTurn() {
     setTimeout(() => {
         let y,x
+        //if computerintelligence = smart ja huntmode true, we could make a 
+        //function that generates random coordinates but has a bias towards center
         if (computerIntelligence === intelligenceLevel.DUMB || huntMode === true) {
             [y,x] = generateRandomCoordinates(playerArray.length)
         } else {
@@ -349,21 +331,21 @@ function executeComputerTurn() {
             setElemText(infoText, `Computer sunk your ${hitData.shipName}!`)
         }
 
-        //if the attack was a hit on a boat
+        //if the attack was a hit on a boat and intelligence is smart
         if (computerIntelligence === intelligenceLevel.SMART) {
             if (playerArray[y][x] === constants.HIT_CELL) {
                 wasPreviousAttackHit = true
                 huntMode = false
                 previousHitCoordinates = [y,x]
-                updateHitCells()
+                updateHitCells(y, x, hitData.ship)
             } else {
                 wasPreviousAttackHit = false
                 huntMode = true
             }
         }
-        //console.log("Oliko tietokoneen viime isku osuma: ",wasPreviousAttackHit);
-        //console.log("Koordinaatit: ", previousHitCoordinates);
-        //console.log("");
+        console.log("Oliko tietokoneen viime isku osuma: ",wasPreviousAttackHit);
+        console.log("Koordinaatit: ", previousHitCoordinates);
+        console.log("");
 
         drawBoard(playerArray, "player")
         if (!checkIfGameOver()) {
@@ -371,6 +353,29 @@ function executeComputerTurn() {
         }
     }, 50)
 }/*Math.floor(Math.random() * 500) + 500*/
+
+function updateHitCells(y, x, ship) {
+    hitCells.push({
+        y: y,
+        x: x,
+        ship: ship
+
+    })
+    for (const hit of hitCells) {
+        console.log(hit.y, hit.x, hit.ship);
+    }
+}
+
+//this can be made alot smarter TODO
+//also doesnt work properly
+function calculateSmartAttack() {
+    let [y,x] = previousHitCoordinates
+    if (validateCoordinates(y - 1, x, playerArray)) return [y - 1, x]
+    if (validateCoordinates(y, x + 1, playerArray)) return [y, x + 1]
+    if (validateCoordinates(y + 1, x, playerArray)) return [y + 1, x]
+    if (validateCoordinates(y, x - 1, playerArray)) return [y, x - 1]
+    else return generateRandomCoordinates(playerArray.length)
+}
 
 function generateRandomCoordinates(range) {
     let y,x
