@@ -323,7 +323,11 @@ function handleClick(event) {
 
         const y = parseInt(clickInfo[0])
         const x = parseInt(clickInfo[1])
-        if (!computerBoard.receiveAttack(y, x)) return
+        const hitData = computerBoard.receiveAttack(y, x)
+        if (!hitData.wasAttackValid) return
+        if (hitData.wasShipSunk) {
+            setElemText(infoText, `You sunk the computer's ${hitData.shipName}!`)
+        }
 
         drawBoard(computerArray, "computer")
         if (checkIfGameOver()) return
@@ -340,7 +344,10 @@ function executeComputerTurn() {
         } else {
             [y,x] = calculateSmartAttack()
         }
-        playerBoard.receiveAttack(y, x)
+        const hitData = playerBoard.receiveAttack(y, x)
+        if (hitData.wasShipSunk) {
+            setElemText(infoText, `Computer sunk your ${hitData.shipName}!`)
+        }
 
         //if the attack was a hit on a boat
         if (computerIntelligence === intelligenceLevel.SMART) {

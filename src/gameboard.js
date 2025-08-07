@@ -44,6 +44,7 @@ class Gameboard {
         if (y >= this.boardSize || x >= this.boardSize || y < 0 || x < 0) return false
         if (value === this.constants.MISSED_CELL || value === this.constants.HIT_CELL) return false
         return true
+
     }
 
     //this can be deleted
@@ -54,9 +55,14 @@ class Gameboard {
         console.log(" ");
     }*/
 
+    findShipName(symbol) {
+        return this.ships.find(s => s.getSymbol() === symbol)
+    }
+
     markHit(y, x) {
-        const shipSymbol = this.board[y][x]
-        const shipThatWasHit = this.ships.find(s => s.getSymbol() === shipSymbol)
+        const value = this.board[y][x]
+        //const shipThatWasHit = this.ships.find(s => s.getSymbol() === shipSymbol)
+        const shipThatWasHit = this.findShipName(value)
         shipThatWasHit.hit()
         //this.shipStatsHelperFunc()
         this.board[y][x] = this.constants.HIT_CELL
@@ -64,17 +70,32 @@ class Gameboard {
     }
 
     receiveAttack(y, x) {
+        const hitData = {
+            wasAttackValid: null,
+            wasHit: null,
+            shipName: null,
+            wasShipSunk: null
+        }
+
         const wasAttackValid = this.validateAttack(y, x)
-        if (!wasAttackValid) return
+        if (!wasAttackValid) {
+            hitData.wasAttackValid = false
+            return hitData
+        } else hitData.wasAttackValid = true
 
         const value = this.board[y][x]
+
         if (value === this.constants.EMPTY_CELL) {
             this.board[y][x] = this.constants.MISSED_CELL
-            return true
+            hitData.wasHit = false
         } else {
+            const ship = this.findShipName(value)
             this.markHit(y, x)
-            return true
+            hitData.wasHit = true
+            hitData.shipName = ship.getShipName()
+            if (ship.getIsShipSunk()) hitData.wasShipSunk = true
         }
+        return hitData
     }
 
     validateShipPlacement(length, y, x, horizontal=true) {
